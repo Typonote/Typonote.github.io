@@ -63,6 +63,14 @@
         .photo-thumb img { width:100%; height:100%; object-fit:cover; }
         .photo-remove { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:999px; background:rgba(15,23,42,.85); color:#fda4af; border:1px solid #475569; }
         @media print { .no-print, nav, header { display:none !important; } }
+        .manifold-step { position:relative; }
+        .manifold-step::before { content:''; position:absolute; left:1.15rem; top:100%; width:2px; height:1rem; background:#334155; }
+        .manifold-step:last-child::before { display:none; }
+        .manifold-input { width:100%; background:#020617; border:2px solid #334155; color:#f8fafc; border-radius:.9rem; padding:.8rem .85rem; outline:none; font-size:1.15rem; font-family:'JetBrains Mono',monospace; font-weight:800; }
+        .manifold-input:focus { border-color:#06b6d4; box-shadow:0 0 0 3px rgba(6,182,212,.10); }
+        .manifold-input::placeholder { color:#475569; }
+        .manifold-result { min-height:2.5rem; }
+        .unit-chip { background:#020617; border:1px solid #334155; color:#67e8f9; border-radius:.65rem; padding:.35rem .5rem; font:700 .68rem 'JetBrains Mono',monospace; }
 
     </style>
 </head>
@@ -140,56 +148,57 @@
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
                 <div class="xl:col-span-7 space-y-5">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                             <div>
-                                <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-stethoscope text-emerald-400"></i> 증상 기반 현장진단</h3>
-                                <p class="text-xs text-slate-400 mt-1">증상을 먼저 선택하고 측정값을 넣으면 우선 점검 항목을 제시합니다.</p>
+                                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-gauge-high text-cyan-400 mr-1"></i> 매니폴드 측정</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">현장에서 <strong class="text-slate-300">저압 → 저압관 온도 → 고압 → 액관 온도</strong> 순서로 빠르게 입력합니다.</p>
                             </div>
-                            <span class="text-[10px] px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">참고용 의사결정 보조</span>
+                            <div class="flex items-center gap-2">
+                                <select id="fieldPressureUnitSelect" onchange="setFieldPressureUnit(this.value)" class="unit-chip">
+                                    <option value="bar">bar</option><option value="psi">psi</option><option value="kPa">kPa</option><option value="MPa">MPa</option><option value="kgf/cm2">kgf/cm²</option>
+                                </select>
+                                <select id="fieldTempUnitSelect" onchange="setFieldTempUnit(this.value)" class="unit-chip text-emerald-300">
+                                    <option value="C">°C</option><option value="F">°F</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                            <button class="symptom-btn active" data-symptom="cooling_weak" onclick="selectSymptom('cooling_weak')"><i class="fa-solid fa-snowflake"></i><span>냉방 약함</span></button>
-                            <button class="symptom-btn" data-symptom="heating_weak" onclick="selectSymptom('heating_weak')"><i class="fa-solid fa-temperature-arrow-up"></i><span>난방 약함</span></button>
-                            <button class="symptom-btn" data-symptom="leak" onclick="selectSymptom('leak')"><i class="fa-solid fa-droplet"></i><span>누수</span></button>
-                            <button class="symptom-btn" data-symptom="noise" onclick="selectSymptom('noise')"><i class="fa-solid fa-volume-high"></i><span>이상 소음</span></button>
-                            <button class="symptom-btn" data-symptom="icing" onclick="selectSymptom('icing')"><i class="fa-solid fa-icicles"></i><span>결빙</span></button>
-                            <button class="symptom-btn" data-symptom="compressor" onclick="selectSymptom('compressor')"><i class="fa-solid fa-gears"></i><span>압축기 이상</span></button>
-                            <button class="symptom-btn" data-symptom="electrical" onclick="selectSymptom('electrical')"><i class="fa-solid fa-bolt"></i><span>전기 이상</span></button>
-                            <button class="symptom-btn" data-symptom="error" onclick="selectSymptom('error')"><i class="fa-solid fa-triangle-exclamation"></i><span>에러 발생</span></button>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input id="fieldSite" class="field-input" placeholder="현장명 / 고객명">
-                            <input id="fieldEquipment" class="field-input" placeholder="설비명">
-                            <input id="fieldModel" class="field-input" placeholder="모델명 / 시리얼">
-                            <select id="fieldBrand" class="field-input"><option value="">제조사 선택</option><option>LG</option><option>SAMSUNG</option><option>CARRIER</option><option>TRANE</option><option>기타</option></select>
-                        </div>
-                    </div>
 
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-gauge-high text-cyan-400 mr-1"></i> 현장 측정값</h3>
-                                <p class="text-[11px] text-slate-500 mt-1">모든 항목이 필수는 아닙니다. 측정한 값만 입력하세요.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="manifold-step bg-slate-950/80 border border-cyan-500/20 rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">1</span><div><p class="text-xs font-black text-white">흡입압력 · 저압측</p><p class="text-[10px] text-slate-500">Suction / Low Side</p></div></div>
+                                <div class="relative"><input id="fieldSuctionPressure" type="number" step="0.01" inputmode="decimal" class="manifold-input pr-20" placeholder="0.00" data-next="fieldSuctionTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-cyan-300 fieldPressureUnitLabel">bar</span></div>
                             </div>
-                            <button onclick="copyFieldToCalculator()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-cyan-300">냉매진단으로 보내기</button>
+                            <div class="manifold-step bg-slate-950/80 border border-emerald-500/20 rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">2</span><div><p class="text-xs font-black text-white">흡입관온도 · 저압측</p><p class="text-[10px] text-slate-500">Suction Line Temperature</p></div></div>
+                                <div class="relative"><input id="fieldSuctionTemp" type="number" step="0.1" inputmode="decimal" class="manifold-input pr-20" placeholder="0.0" data-next="fieldDischargePressure"><span class="absolute right-3 top-3.5 text-xs font-mono text-emerald-300 fieldTempUnitLabel">°C</span></div>
+                            </div>
+                            <div class="manifold-step bg-slate-950/80 border border-rose-500/20 rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">3</span><div><p class="text-xs font-black text-white">토출압력 · 고압측</p><p class="text-[10px] text-slate-500">Discharge / High Side</p></div></div>
+                                <div class="relative"><input id="fieldDischargePressure" type="number" step="0.01" inputmode="decimal" class="manifold-input pr-20" placeholder="0.00" data-next="fieldLiquidTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-cyan-300 fieldPressureUnitLabel">bar</span></div>
+                            </div>
+                            <div class="manifold-step bg-slate-950/80 border border-amber-500/20 rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">4</span><div><p class="text-xs font-black text-white">액관온도 · 고압측</p><p class="text-[10px] text-slate-500">Liquid Line Temperature</p></div></div>
+                                <div class="relative"><input id="fieldLiquidTemp" type="number" step="0.1" inputmode="decimal" class="manifold-input pr-20" placeholder="0.0" data-next="fieldAmbientTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-emerald-300 fieldTempUnitLabel">°C</span></div>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            <label class="field-label">흡입압력<input id="fieldSuctionPressure" type="number" step="0.1" class="field-input mt-1" placeholder="bar"></label>
-                            <label class="field-label">토출압력<input id="fieldDischargePressure" type="number" step="0.1" class="field-input mt-1" placeholder="bar"></label>
-                            <label class="field-label">흡입관온도<input id="fieldSuctionTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
-                            <label class="field-label">액관온도<input id="fieldLiquidTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
-                            <label class="field-label">외기온도<input id="fieldAmbientTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
-                            <label class="field-label">실내온도<input id="fieldIndoorTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
-                            <label class="field-label">운전전류<input id="fieldCurrent" type="number" step="0.1" class="field-input mt-1" placeholder="A"></label>
+
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <label class="field-label">외기온도 (<span class="fieldTempUnitLabel">°C</span>)<input id="fieldAmbientTemp" type="number" step="0.1" inputmode="decimal" class="field-input mt-1" placeholder="0.0" data-next="fieldIndoorTemp"></label>
+                            <label class="field-label">실내온도 (<span class="fieldTempUnitLabel">°C</span>)<input id="fieldIndoorTemp" type="number" step="0.1" inputmode="decimal" class="field-input mt-1" placeholder="0.0" data-next="fieldCurrent"></label>
+                            <label class="field-label">운전전류 (A)<input id="fieldCurrent" type="number" step="0.1" inputmode="decimal" class="field-input mt-1" placeholder="A" data-next="fieldErrorCode"></label>
                             <label class="field-label">에러코드<input id="fieldErrorCode" class="field-input mt-1" placeholder="예: CH05"></label>
                         </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center"><p class="text-[10px] text-slate-500">예상 과열도</p><p id="manifoldShResult" class="manifold-result text-lg font-black text-emerald-400 num-font">--</p></div>
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center"><p class="text-[10px] text-slate-500">예상 과냉각도</p><p id="manifoldScResult" class="manifold-result text-lg font-black text-cyan-400 num-font">--</p></div>
+                        </div>
+
                         <div class="mt-4 flex flex-wrap gap-2">
                             <button onclick="runFieldDiagnosis()" class="btn-touch px-5 py-3 rounded-xl bg-emerald-500 text-slate-950 font-black text-sm"><i class="fa-solid fa-play mr-1"></i> 진단 실행</button>
                             <button onclick="saveFieldWorkLog()" class="btn-touch px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> 작업기록 저장</button>
-                            <label class="btn-touch cursor-pointer px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm">
-                                <i class="fa-solid fa-camera mr-1"></i> 사진 추가
-                                <input id="fieldPhotoInput" type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFieldPhotos(event)">
-                            </label>
+                            <button onclick="copyFieldToCalculator()" class="btn-touch px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-cyan-300 font-bold text-sm"><i class="fa-solid fa-arrow-right mr-1"></i> 냉매진단으로 보내기</button>
+                            <label class="btn-touch cursor-pointer px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm"><i class="fa-solid fa-camera mr-1"></i> 사진 추가<input id="fieldPhotoInput" type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFieldPhotos(event)"></label>
                         </div>
                         <div id="photoPreview" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4"></div>
                     </div>
@@ -456,7 +465,7 @@
                     </div>
                     <div class="text-right font-mono text-xs text-slate-400">
                         <p>발행일: <span id="reportDate" class="text-slate-200 font-bold">2026-09-19</span></p>
-                        <p>문서번호: <span class="text-slate-200 font-bold">COOLLAB-20260919-01</span></p>
+                        <p>문서번호: <span id="reportDocNumber" class="text-slate-200 font-bold">COOLLAB-</span></p>
                     </div>
                 </div>
 
@@ -464,13 +473,13 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
                         <label class="text-xs font-bold text-slate-400 uppercase">현장 및 담당자 정보</label>
-                        <input type="text" id="reportSiteName" value="고양시 종합병원 중앙기계실" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="현장명 입력">
-                        <input type="text" id="reportEngineerName" value="정비 엔지니어: 홍길동 (자격증번호: 24-0012)" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="엔지니어 성명">
+                        <input type="text" id="reportSiteName" value="" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="현장명 입력">
+                        <input type="text" id="reportEngineerName" value="" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="엔지니어 성명">
                     </div>
                     <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
                         <label class="text-xs font-bold text-slate-400 uppercase">점검 대상 설비 정보</label>
-                        <input type="text" id="reportEquipmentName" value="옥상 3호기 터보 냉동기 / 패키지 에어컨" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="설비명 입력">
-                        <input type="text" id="reportEquipmentModel" value="모델명: L-HVAC-500RT / 사용냉매: R-22" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="모델명/사용 냉매">
+                        <input type="text" id="reportEquipmentName" value="" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="설비명 입력">
+                        <input type="text" id="reportEquipmentModel" value="" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="모델명/사용 냉매">
                     </div>
                 </div>
 
@@ -512,7 +521,7 @@
                 <!-- Engineer Notes Field -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-400 uppercase">엔지니어 점검 소견 (Engineer Recommendations)</label>
-                    <textarea id="reportNotes" rows="3" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="특이사항 및 수리 권고 사항을 입력해주세요...">현재 입력된 측정값은 참고 범위 내입니다. 제조사 기준 및 현장 조건을 함께 확인하십시오.</textarea>
+                    <textarea id="reportNotes" rows="3" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="특이사항 및 수리 권고 사항을 입력해주세요...">측정값과 제조사 기준을 함께 확인하고, 필요한 경우 조치 전후 재측정 결과를 기록하십시오.</textarea>
                 </div>
 
 
@@ -662,7 +671,7 @@
             <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
                 <p><strong class="text-emerald-400">1. 과열도 (Superheat):</strong> 증발기 출구 흡입 배관 온도 - 해당 압력의 포화 기체(Dew) 온도 (권장: 5~8°C)</p>
                 <p><strong class="text-cyan-400">2. 과냉각도 (Subcooling):</strong> 응축기 출구 액관 압력의 포화 액체(Bubble) 온도 - 실측 액관 온도 (권장: 5~7°C)</p>
-                <p><strong class="text-amber-400">3. 선형 보간 엔진:</strong> NIST REFPROP 표준 데이터베이스 기반으로 정밀 보간 연산을 수행합니다.</p>
+                <p><strong class="text-amber-400">3. 선형 보간 엔진:</strong> 내장된 냉매 P-T 데이터와 선형 보간을 사용합니다. 실제 정비 판단은 제조사 자료와 현장 기준을 우선하십시오.</p>
                 <p><strong class="text-slate-200">4. 오프라인 퍼스트:</strong> 지하 기계실 등 신호가 약한 현장에서도 상시 구동됩니다.</p>
             </div>
             <button onclick="closeModal('infoModal')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition">
@@ -1068,84 +1077,191 @@
         /**
          * Toggle Metric / Imperial Unit System
          */
-        function toggleUnitSystem() {
-            if (appState.unitSystem === 'METRIC') {
-                appState.unitSystem = 'IMPERIAL';
-                appState.pressureUnit = 'psi';
-                appState.tempUnit = 'F';
-                document.getElementById('unitSystemText').innerText = 'Imperial (psi, °F)';
-            } else {
-                appState.unitSystem = 'METRIC';
-                appState.pressureUnit = 'bar';
-                appState.tempUnit = 'C';
-                document.getElementById('unitSystemText').innerText = 'Metric (bar, °C)';
+        function formatUnitValue(value, decimals=2) {
+            return Number.isFinite(value) ? value.toFixed(decimals) : '';
+        }
+
+        function convertFieldInputs(fromPressure, toPressure, fromTemp, toTemp) {
+            if (fromPressure !== toPressure) {
+                ['fieldSuctionPressure','fieldDischargePressure'].forEach(id => {
+                    const el = document.getElementById(id);
+                    const raw = parseFloat(el?.value);
+                    if (el && Number.isFinite(raw)) {
+                        const bar = unitConverter.pressureToBar(raw, fromPressure);
+                        el.value = formatUnitValue(unitConverter.barToUnit(bar, toPressure), toPressure === 'psi' || toPressure === 'kPa' ? 1 : 2);
+                    }
+                });
             }
+            if (fromTemp !== toTemp) {
+                ['fieldSuctionTemp','fieldLiquidTemp','fieldAmbientTemp','fieldIndoorTemp'].forEach(id => {
+                    const el = document.getElementById(id);
+                    const raw = parseFloat(el?.value);
+                    if (el && Number.isFinite(raw)) {
+                        const c = unitConverter.tempToCelsius(raw, fromTemp);
+                        el.value = formatUnitValue(unitConverter.celsiusToUnit(c, toTemp), 1);
+                    }
+                });
+            }
+        }
+
+        function updateFieldUnitUI() {
+            const p = appState.fieldPressureUnit;
+            const t = appState.fieldTempUnit;
+            const pLabel = p === 'kgf/cm2' ? 'kgf/cm²' : p;
+            document.querySelectorAll('.fieldPressureUnitLabel').forEach(el => el.innerText = pLabel);
+            document.querySelectorAll('.fieldTempUnitLabel').forEach(el => el.innerText = '°' + t);
+            const ps = document.getElementById('fieldPressureUnitSelect');
+            const ts = document.getElementById('fieldTempUnitSelect');
+            if (ps) ps.value = p;
+            if (ts) ts.value = t;
+        }
+
+        function syncAllUnitUI() {
+            const pLabel = appState.pressureUnit === 'kgf/cm2' ? 'kgf/cm²' : appState.pressureUnit;
+            document.getElementById('unitSystemText').innerText =
+                `${appState.unitSystem === 'IMPERIAL' ? 'Imperial' : 'Metric'} (${pLabel}, °${appState.tempUnit})`;
             document.getElementById('pressureUnitSelect').value = appState.pressureUnit;
             document.getElementById('tempUnitSelect').value = appState.tempUnit;
-            
             document.querySelectorAll('.tempUnitLabel').forEach(el => el.innerText = '°' + appState.tempUnit);
             document.querySelectorAll('.pressUnitLabel').forEach(el => el.innerText = appState.pressureUnit);
+            updateFieldUnitUI();
+        }
 
+        function convertCalculatorInputs(fromPressure, toPressure, fromTemp, toTemp) {
+            const pEl = document.getElementById('inputPressure');
+            const tEl = document.getElementById('inputPipeTemp');
+            const pRaw = parseFloat(pEl?.value), tRaw = parseFloat(tEl?.value);
+            if (pEl && Number.isFinite(pRaw) && fromPressure !== toPressure) {
+                const bar = unitConverter.pressureToBar(pRaw, fromPressure);
+                pEl.value = formatUnitValue(unitConverter.barToUnit(bar, toPressure), toPressure === 'psi' || toPressure === 'kPa' ? 1 : 2);
+            }
+            if (tEl && Number.isFinite(tRaw) && fromTemp !== toTemp) {
+                const c = unitConverter.tempToCelsius(tRaw, fromTemp);
+                tEl.value = formatUnitValue(unitConverter.celsiusToUnit(c, toTemp), 1);
+            }
+        }
+
+        function setGlobalUnits(pressureUnit, tempUnit, announce=true) {
+            const oldP = appState.fieldPressureUnit;
+            const oldT = appState.fieldTempUnit;
+            convertFieldInputs(oldP, pressureUnit, oldT, tempUnit);
+            convertCalculatorInputs(appState.pressureUnit, pressureUnit, appState.tempUnit, tempUnit);
+
+            appState.pressureUnit = pressureUnit;
+            appState.tempUnit = tempUnit;
+            appState.fieldPressureUnit = pressureUnit;
+            appState.fieldTempUnit = tempUnit;
+            appState.unitSystem = (pressureUnit === 'psi' && tempUnit === 'F') ? 'IMPERIAL' : 'METRIC';
+
+            syncAllUnitUI();
             calculateSuperheatSubcooling();
             renderPtTable();
             updatePtChart();
-            showToast(`단위계 변경: ${appState.pressureUnit}, °${appState.tempUnit}`);
+            if (announce) showToast(`단위 연동: ${pressureUnit}, °${tempUnit}`);
+        }
+
+        function toggleUnitSystem() {
+            if (appState.unitSystem === 'METRIC') {
+                setGlobalUnits('psi', 'F');
+            } else {
+                setGlobalUnits('bar', 'C');
+            }
+        }
+
+        function setFieldPressureUnit(unit) {
+            const old = appState.fieldPressureUnit;
+            convertFieldInputs(old, unit, appState.fieldTempUnit, appState.fieldTempUnit);
+            convertCalculatorInputs(appState.pressureUnit, unit, appState.tempUnit, appState.tempUnit);
+            appState.fieldPressureUnit = unit;
+            appState.pressureUnit = unit;
+            appState.unitSystem = (unit === 'psi' && appState.tempUnit === 'F') ? 'IMPERIAL' : 'METRIC';
+            syncAllUnitUI();
+            calculateSuperheatSubcooling();
+            renderPtTable();
+            updatePtChart();
+            updateManifoldPreview();
+        }
+
+        function setFieldTempUnit(unit) {
+            const old = appState.fieldTempUnit;
+            convertFieldInputs(appState.fieldPressureUnit, appState.fieldPressureUnit, old, unit);
+            convertCalculatorInputs(appState.pressureUnit, appState.pressureUnit, appState.tempUnit, unit);
+            appState.fieldTempUnit = unit;
+            appState.tempUnit = unit;
+            appState.unitSystem = (appState.pressureUnit === 'psi' && unit === 'F') ? 'IMPERIAL' : 'METRIC';
+            syncAllUnitUI();
+            calculateSuperheatSubcooling();
+            renderPtTable();
+            updatePtChart();
         }
 
         /**
-         * Linear Interpolation Calculation Formula
+         * Linear interpolation with explicit bounds validation.
+         * P-T data are always looked up in bar and returned in Celsius.
          */
         function linearInterpolate(x, x1, y1, x2, y2) {
-            if (x1 === x2) return y1;
+            if (![x, x1, y1, x2, y2].every(Number.isFinite)) return null;
+            if (x1 === x2) return x === x1 ? y1 : null;
             return y1 + ((x - x1) * (y2 - y1)) / (x2 - x1);
+        }
+
+        function getPTInterpolation(dataset, pressureBar) {
+            if (!Array.isArray(dataset) || dataset.length < 2 || !Number.isFinite(pressureBar)) return { ok:false, reason:'invalid' };
+            const min = dataset[0].pGaugeBar;
+            const max = dataset[dataset.length - 1].pGaugeBar;
+            if (pressureBar < min || pressureBar > max) return { ok:false, reason:'out_of_bounds', min, max };
+            for (let i = 0; i < dataset.length - 1; i++) {
+                const lo = dataset[i], hi = dataset[i + 1];
+                if (pressureBar >= lo.pGaugeBar && pressureBar <= hi.pGaugeBar) {
+                    const dew = linearInterpolate(pressureBar, lo.pGaugeBar, lo.tDew, hi.pGaugeBar, hi.tDew);
+                    const bubble = linearInterpolate(pressureBar, lo.pGaugeBar, lo.tBubble, hi.pGaugeBar, hi.tBubble);
+                    if (dew === null || bubble === null) return { ok:false, reason:'interpolation_error' };
+                    return { ok:true, dew, bubble, lo, hi };
+                }
+            }
+            return { ok:false, reason:'no_bracket', min, max };
         }
 
         /**
          * Main Engine: Calculate Superheat and Subcooling
+         * 1) Convert selected pressure to bar and temperature to °C.
+         * 2) Find the two surrounding P-T data points.
+         * 3) Linearly interpolate Dew/Bubble temperature.
+         * 4) Reject pressures outside the local P-T dataset instead of clamping to endpoints.
          */
         function calculateSuperheatSubcooling() {
-            appState.pressureUnit = document.getElementById('pressureUnitSelect').value;
-            appState.tempUnit = document.getElementById('tempUnitSelect').value;
-
+            const selectedPressureUnit = document.getElementById('pressureUnitSelect').value;
+            const selectedTempUnit = document.getElementById('tempUnitSelect').value;
+            appState.pressureUnit = selectedPressureUnit;
+            appState.tempUnit = selectedTempUnit;
+            appState.unitSystem = (selectedPressureUnit === 'psi' && selectedTempUnit === 'F') ? 'IMPERIAL' : 'METRIC';
             document.querySelectorAll('.tempUnitLabel').forEach(el => el.innerText = '°' + appState.tempUnit);
-            document.querySelectorAll('.pressUnitLabel').forEach(el => el.innerText = appState.pressureUnit);
+            document.querySelectorAll('.pressUnitLabel').forEach(el => el.innerText = appState.pressureUnit === 'kgf/cm2' ? 'kgf/cm²' : appState.pressureUnit);
 
             const rawPressure = parseFloat(document.getElementById('inputPressure').value);
             const rawPipeTemp = parseFloat(document.getElementById('inputPipeTemp').value);
+            if (!Number.isFinite(rawPressure) || !Number.isFinite(rawPipeTemp)) return;
 
-            if (isNaN(rawPressure) || isNaN(rawPipeTemp)) return;
-
-            // Convert to standard Bar and Celsius for table lookups
             const pBar = unitConverter.pressureToBar(rawPressure, appState.pressureUnit);
             const tCelsius = unitConverter.tempToCelsius(rawPipeTemp, appState.tempUnit);
+            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant]?.data || [];
+            const result = getPTInterpolation(dataset, pBar);
 
-            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
-            
-            let lowerPoint = dataset[0];
-            let upperPoint = dataset[dataset.length - 1];
-
-            if (pBar <= dataset[0].pGaugeBar) {
-                lowerPoint = upperPoint = dataset[0];
-            } else if (pBar >= dataset[dataset.length - 1].pGaugeBar) {
-                lowerPoint = upperPoint = dataset[dataset.length - 1];
-            } else {
-                for (let i = 0; i < dataset.length - 1; i++) {
-                    if (pBar >= dataset[i].pGaugeBar && pBar <= dataset[i+1].pGaugeBar) {
-                        lowerPoint = dataset[i];
-                        upperPoint = dataset[i+1];
-                        break;
-                    }
-                }
+            if (!result.ok) {
+                ['displaySatDew','displaySatBubble','displaySuperheat','displaySubcooling'].forEach(id => { const el=document.getElementById(id); if(el) el.innerText='범위 밖'; });
+                const guide = document.getElementById('diagnosticGuideText');
+                if (guide) guide.innerHTML = result.reason === 'out_of_bounds'
+                    ? `<span class="text-amber-300 font-bold">⚠ 입력 압력이 P-T 데이터 범위를 벗어났습니다.</span> ${result.min.toFixed(2)} ~ ${result.max.toFixed(2)} bar 범위에서 다시 측정하거나 제조사 자료를 확인하십시오.`
+                    : '<span class="text-amber-300 font-bold">⚠ P-T 보간 계산을 수행할 수 없습니다.</span> 냉매 데이터와 입력값을 확인하십시오.';
+                ['rptSH','rptSC','rptSatDew','rptSatBubble'].forEach(id => { const el=document.getElementById(id); if(el) el.innerText='범위 밖'; });
+                const status=document.getElementById('rptStatus');
+                if(status){status.innerText='계산 범위 밖 / 재측정 필요';status.className='p-3 font-bold text-amber-400';}
+                return null;
             }
 
-            // Interpolate Dew and Bubble temperatures
-            const satDewC = linearInterpolate(pBar, lowerPoint.pGaugeBar, lowerPoint.tDew, upperPoint.pGaugeBar, upperPoint.tDew);
-            const satBubbleC = linearInterpolate(pBar, lowerPoint.pGaugeBar, lowerPoint.tBubble, upperPoint.pGaugeBar, upperPoint.tBubble);
-
+            const satDewC = result.dew, satBubbleC = result.bubble;
             const superheatC = tCelsius - satDewC;
             const subcoolingC = satBubbleC - tCelsius;
-
-            // Display unit conversions
             const satDewDisplay = unitConverter.celsiusToUnit(satDewC, appState.tempUnit);
             const satBubbleDisplay = unitConverter.celsiusToUnit(satBubbleC, appState.tempUnit);
             const shDisplay = appState.tempUnit === 'F' ? superheatC * 1.8 : superheatC;
@@ -1159,9 +1275,9 @@
             const targetMinSH = appState.expansionType === 'TXV' ? (appState.tempUnit === 'F' ? 9 : 5) : (appState.tempUnit === 'F' ? 14 : 8);
             const targetMaxSH = appState.expansionType === 'TXV' ? (appState.tempUnit === 'F' ? 15 : 8) : (appState.tempUnit === 'F' ? 22 : 12);
             document.getElementById('targetShText').innerText = `${targetMinSH.toFixed(1)} ~ ${targetMaxSH.toFixed(1)} °${appState.tempUnit}`;
-
             updateDiagnosticGuide(shDisplay, scDisplay, targetMinSH, targetMaxSH);
             syncValuesToReportTab(rawPressure, rawPipeTemp, satDewDisplay, satBubbleDisplay, shDisplay, scDisplay);
+            return { pBar, tCelsius, satDewC, satBubbleC, superheatC, subcoolingC };
         }
 
         /**
@@ -1499,9 +1615,16 @@ ${item.fix}
         };
 
         function v3Init() {
+            bindManifoldWorkflow();
             document.querySelectorAll('.symptom-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.symptom === v3State.symptom);
             });
+            appState.fieldPressureUnit = appState.pressureUnit;
+            appState.fieldTempUnit = appState.tempUnit;
+            syncAllUnitUI();
+            const today = new Date().toISOString().split('T')[0];
+            const doc = document.getElementById('reportDocNumber');
+            if (doc) doc.innerText = `COOLLAB-${today.replace(/-/g,'')}-${String(Date.now()).slice(-4)}`;
             renderWorkLogs();
             updateReportPhotos();
             if (document.getElementById('fieldTab')) switchMainTab('fieldTab');
@@ -1563,26 +1686,25 @@ ${item.fix}
         }
 
         function calculateFieldSuperheat() {
-            const p = num('fieldSuctionPressure'), t = num('fieldSuctionTemp');
-            if (p === null || t === null) return null;
+            const pRaw = num('fieldSuctionPressure'), tRaw = num('fieldSuctionTemp');
+            if (pRaw === null || tRaw === null) return null;
             const ds = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
-            const pb = p;
-            if (pb < ds[0].pGaugeBar || pb > ds[ds.length-1].pGaugeBar) return null;
-            let lo = ds[0], hi = ds[ds.length - 1];
-            for (let i=0;i<ds.length-1;i++) if(pb>=ds[i].pGaugeBar && pb<=ds[i+1].pGaugeBar){lo=ds[i];hi=ds[i+1];break;}
-            const sat = linearInterpolate(pb, lo.pGaugeBar, lo.tDew, hi.pGaugeBar, hi.tDew);
-            return t - sat;
+            const pb = unitConverter.pressureToBar(pRaw, appState.fieldPressureUnit);
+            const t = unitConverter.tempToCelsius(tRaw, appState.fieldTempUnit);
+            const pt = getPTInterpolation(ds, pb);
+            if (!pt.ok) return null;
+            return t - pt.dew;
         }
 
         function calculateFieldSubcooling() {
-            const p = num('fieldDischargePressure'), t = num('fieldLiquidTemp');
-            if (p === null || t === null) return null;
+            const pRaw = num('fieldDischargePressure'), tRaw = num('fieldLiquidTemp');
+            if (pRaw === null || tRaw === null) return null;
             const ds = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
-            if (p < ds[0].pGaugeBar || p > ds[ds.length-1].pGaugeBar) return null;
-            let lo = ds[0], hi = ds[ds.length - 1];
-            for (let i=0;i<ds.length-1;i++) if(p>=ds[i].pGaugeBar && p<=ds[i+1].pGaugeBar){lo=ds[i];hi=ds[i+1];break;}
-            const sat = linearInterpolate(p, lo.pGaugeBar, lo.tBubble, hi.pGaugeBar, hi.tBubble);
-            return sat - t;
+            const p = unitConverter.pressureToBar(pRaw, appState.fieldPressureUnit);
+            const t = unitConverter.tempToCelsius(tRaw, appState.fieldTempUnit);
+            const pt = getPTInterpolation(ds, p);
+            if (!pt.ok) return null;
+            return pt.bubble - t;
         }
 
         function renderDiagnosisResult(d) {
@@ -1612,12 +1734,14 @@ ${item.fix}
             const p = num('fieldSuctionPressure'), t = num('fieldSuctionTemp');
             if (p !== null) document.getElementById('inputPressure').value = p;
             if (t !== null) document.getElementById('inputPipeTemp').value = t;
-            document.getElementById('pressureUnitSelect').value = 'bar';
-            document.getElementById('tempUnitSelect').value = 'C';
-            appState.pressureUnit='bar'; appState.tempUnit='C';
+            appState.pressureUnit = appState.fieldPressureUnit;
+            appState.tempUnit = appState.fieldTempUnit;
+            document.getElementById('pressureUnitSelect').value = appState.pressureUnit;
+            document.getElementById('tempUnitSelect').value = appState.tempUnit;
+            syncAllUnitUI();
             calculateSuperheatSubcooling();
             switchMainTab('calcTab');
-            showToast('현장 측정값을 냉매진단으로 전달했습니다.');
+            showToast(`현장 측정값을 ${appState.pressureUnit}, °${appState.tempUnit} 단위로 냉매진단에 전달했습니다.`);
         }
 
         function syncFieldToReport(d) {
@@ -1676,6 +1800,17 @@ ${item.fix}
                 refrigerant:appState.selectedRefrigerant,
                 symptom:d.symptom.title, priority:d.priority,
                 sh:d.sh, sc:d.sc, error:d.error||'', photoCount:v3State.photos.length,
+                units:{pressure:appState.fieldPressureUnit,temp:appState.fieldTempUnit},
+                measurements:{
+                    suctionPressure:document.getElementById('fieldSuctionPressure').value,
+                    dischargePressure:document.getElementById('fieldDischargePressure').value,
+                    suctionTemp:document.getElementById('fieldSuctionTemp').value,
+                    liquidTemp:document.getElementById('fieldLiquidTemp').value,
+                    ambientTemp:document.getElementById('fieldAmbientTemp').value,
+                    indoorTemp:document.getElementById('fieldIndoorTemp').value,
+                    current:document.getElementById('fieldCurrent').value,
+                    errorCode:document.getElementById('fieldErrorCode').value
+                },
                 notes:document.getElementById('reportNotes').value
             };
             v3State.workLogs.unshift(record); v3State.workLogs=v3State.workLogs.slice(0,100);
@@ -1707,6 +1842,20 @@ ${item.fix}
             const r=v3State.workLogs.find(x=>x.id===id); if(!r)return;
             document.getElementById('fieldSite').value=r.site; document.getElementById('fieldEquipment').value=r.equipment;
             document.getElementById('fieldModel').value=r.model||''; document.getElementById('fieldBrand').value=r.brand||'';
+            const units=r.units||{pressure:'bar',temp:'C'};
+            appState.fieldPressureUnit=units.pressure; appState.fieldTempUnit=units.temp;
+            appState.pressureUnit=units.pressure; appState.tempUnit=units.temp;
+            appState.unitSystem=(units.pressure==='psi' && units.temp==='F')?'IMPERIAL':'METRIC';
+            const m=r.measurements||{};
+            document.getElementById('fieldSuctionPressure').value=m.suctionPressure||'';
+            document.getElementById('fieldDischargePressure').value=m.dischargePressure||'';
+            document.getElementById('fieldSuctionTemp').value=m.suctionTemp||'';
+            document.getElementById('fieldLiquidTemp').value=m.liquidTemp||'';
+            document.getElementById('fieldAmbientTemp').value=m.ambientTemp||'';
+            document.getElementById('fieldIndoorTemp').value=m.indoorTemp||'';
+            document.getElementById('fieldCurrent').value=m.current||'';
+            document.getElementById('fieldErrorCode').value=m.errorCode||r.error||'';
+            syncAllUnitUI();
             document.getElementById('reportNotes').value=r.notes||'';
             const key=Object.keys(SYMPTOM_DATABASE).find(k=>SYMPTOM_DATABASE[k].title===r.symptom); if(key)selectSymptom(key);
             switchMainTab('fieldTab'); showToast('작업 기록을 불러왔습니다. 측정값은 다시 확인해 주세요.');
@@ -1755,26 +1904,6 @@ ${item.fix}
             openModal('kakaoModal');
         }
 
-        // Wrap the existing calculator to keep the original engine while adding safety messaging.
-        const _coollabBaseCalc = calculateSuperheatSubcooling;
-        calculateSuperheatSubcooling = function() {
-            const pRaw=parseFloat(document.getElementById('inputPressure')?.value);
-            const ds=REFRIGERANT_DATABASE[appState.selectedRefrigerant]?.data||[];
-            const pBar=Number.isFinite(pRaw) ? unitConverter.pressureToBar(pRaw, appState.pressureUnit) : NaN;
-            const min=ds[0]?.pGaugeBar, max=ds[ds.length-1]?.pGaugeBar;
-            const guide=document.getElementById('diagnosticGuideText');
-            if(Number.isFinite(pBar) && (pBar<min || pBar>max)) {
-                ['displaySatDew','displaySatBubble','displaySuperheat','displaySubcooling'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText='범위 밖';});
-                if(guide) guide.innerHTML='<span class="text-amber-300 font-bold">⚠ 입력 압력이 현재 로컬 P-T 데이터 범위를 벗어났습니다.</span> 데이터 끝점으로 강제 계산하지 않습니다. 적정 P-T 데이터 또는 제조사 자료를 확인하십시오.';
-                const status=document.getElementById('rptStatus');
-                if(status){status.innerText='계산 범위 밖 / 재측정 필요';status.className='p-3 font-bold text-amber-400';}
-                return;
-            }
-            _coollabBaseCalc();
-            const status=document.getElementById('rptStatus');
-            if(status && !v3State.lastDiagnosis) { status.innerText='참고 범위 내 / 추가 확인'; status.className='p-3 font-bold text-amber-400'; }
-        };
-
         // Improve error-code cards with a model/safety note and clickable code search.
         const _coollabBaseRenderErrors = renderErrorCodes;
         renderErrorCodes = function(filteredList = ERROR_CODE_DATABASE) {
@@ -1796,6 +1925,36 @@ ${item.fix}
                 container.appendChild(card);
             });
         };
+
+        // Manifold workflow: Enter/Next moves in the physical measurement order.
+        function bindManifoldWorkflow() {
+            const ids = ['fieldSuctionPressure','fieldSuctionTemp','fieldDischargePressure','fieldLiquidTemp','fieldAmbientTemp','fieldIndoorTemp','fieldCurrent','fieldErrorCode'];
+            ids.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                if (!el || el.dataset.manifoldBound) return;
+                el.dataset.manifoldBound = '1';
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const next = document.getElementById(ids[idx + 1]);
+                        if (next) next.focus(); else runFieldDiagnosis();
+                    }
+                    if (e.key === 'ArrowDown' && idx < ids.length - 1) document.getElementById(ids[idx + 1]).focus();
+                    if (e.key === 'ArrowUp' && idx > 0) document.getElementById(ids[idx - 1]).focus();
+                });
+                el.addEventListener('input', () => updateManifoldPreview());
+            });
+            updateManifoldPreview();
+        }
+
+        function updateManifoldPreview() {
+            const sh = calculateFieldSuperheat();
+            const sc = calculateFieldSubcooling();
+            const shEl = document.getElementById('manifoldShResult');
+            const scEl = document.getElementById('manifoldScResult');
+            if (shEl) shEl.innerText = sh === null ? '--' : `${sh.toFixed(1)} °${appState.fieldTempUnit}`;
+            if (scEl) scEl.innerText = sc === null ? '--' : `${sc.toFixed(1)} °${appState.fieldTempUnit}`;
+        }
 
         // Re-run initialization after the v3 layer has been parsed.
         const _coollabOriginalOnload = window.onload;
