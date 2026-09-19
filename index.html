@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coollab - 공조냉동 현장 스마트 엔지니어 도구</title>
+    
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        hvac: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#10b981',
+                            cold: '#06b6d4',
+                            hot: '#ef4444',
+                            warning: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icon Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for P-T Saturation Curve Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Web Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .num-font { font-family: 'JetBrains Mono', monospace; }
+        /* Mobile Touch Effect */
+        .btn-touch:active { transform: scale(0.97); }
+        /* Document Print Styling for Inspection Reports */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .print-card { border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-900 pb-16 md:pb-0">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <!-- Brand Logo and Name -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white flex items-center gap-2">
+                        Coollab <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">PRO</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">v2.4</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">공조냉동 현장 스마트 게이지 & 진단 솔루션</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Metric / Imperial Unit Switcher Button -->
+                <button id="unitToggleBtn" onclick="toggleUnitSystem()" class="btn-touch px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono font-semibold text-emerald-400 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span id="unitSystemText">Metric (bar, °C)</span>
+                </button>
+                <!-- Help Modal Trigger -->
+                <button onclick="openModal('infoModal')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition" title="사용 가이드">
+                    <i class="fa-solid fa-circle-question text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto w-full px-3 md:px-6 py-4 flex-1">
+        
+        <!-- Main Navigation Tabs (Clean 4-tab layout for technicians) -->
+        <nav class="flex space-x-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 mb-6 no-print overflow-x-auto">
+            <button onclick="switchMainTab('calcTab')" id="tab-calcTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950 shadow-md">
+                <i class="fa-solid fa-calculator"></i> SH/SC 계산기
+            </button>
+            <button onclick="switchMainTab('ptTableTab')" id="tab-ptTableTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-chart-line"></i> P-T 포화표 & 곡선
+            </button>
+            <button onclick="switchMainTab('reportTab')" id="tab-reportTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-file-contract"></i> 점검 리포트
+            </button>
+            <button onclick="switchMainTab('errorCodeTab')" id="tab-errorCodeTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-triangle-exclamation"></i> 에러코드 DB
+            </button>
+        </nav>
+
+        <!-- TAB 1: SUPERHEAT & SUBCOOLING CALCULATOR -->
+        <section id="calcTab" class="tab-content space-y-6">
+            
+            <!-- Refrigerant Selector Buttons -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-gas-pump text-emerald-400"></i> 냉매 종류 선택 (Refrigerant)
+                    </label>
+                    <span id="refrigerantTypeBadge" class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">단일 냉매</span>
+                </div>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="refrigerantSelectorGroup">
+                    <!-- Refrigerant buttons populated dynamically by JS -->
+                </div>
+            </div>
+
+            <!-- Input & Real-time Diagnostic Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Inputs Section (Left 7 Columns) -->
+                <div class="lg:col-span-7 space-y-5">
+                    
+                    <!-- Pressure Input Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-slate-700 transition">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                게이지 압력 (Gauge Pressure)
+                            </label>
+                            <div class="flex items-center bg-slate-950 rounded-lg p-1 border border-slate-800">
+                                <select id="pressureUnitSelect" onchange="calculateSuperheatSubcooling()" class="bg-transparent text-xs font-mono font-bold text-cyan-400 focus:outline-none px-1">
+                                    <option value="bar">bar</option>
+                                    <option value="psi">psi</option>
+                                    <option value="kPa">kPa</option>
+                                    <option value="MPa">MPa</option>
+                                    <option value="kgf/cm2">kgf/cm²</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pressure Value Input -->
+                        <div class="relative flex items-center">
+                            <input type="number" id="inputPressure" step="0.1" value="4.5" oninput="calculateSuperheatSubcooling()" 
+                                class="w-full bg-slate-950 border-2 border-slate-800 focus:border-cyan-400 rounded-xl px-4 py-3.5 text-2xl sm:text-3xl num-font font-bold text-white focus:outline-none transition shadow-inner" placeholder="0.0">
+                            <!-- Quick Adjust Buttons -->
+                            <div class="absolute right-2 flex gap-1">
+                                <button onclick="adjustInputValue('inputPressure', -0.5)" class="btn-touch w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-lg flex items-center justify-center border border-slate-700">-</button>
+                                <button onclick="adjustInputValue('inputPressure', 0.5)" class="btn-touch w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-lg flex items-center justify-center border border-slate-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pipe Temperature Input Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-slate-700 transition">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                실측 배관 온도 (Actual Pipe Temperature)
+                            </label>
+                            <div class="flex items-center bg-slate-950 rounded-lg p-1 border border-slate-800">
+                                <select id="tempUnitSelect" onchange="calculateSuperheatSubcooling()" class="bg-transparent text-xs font-mono font-bold text-emerald-400 focus:outline-none px-1">
+                                    <option value="C">°C</option>
+                                    <option value="F">°F</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pipe Temp Value Input -->
+                        <div class="relative flex items-center">
+                            <input type="number" id="inputPipeTemp" step="0.1" value="8.0" oninput="calculateSuperheatSubcooling()" 
+                                class="w-full bg-slate-950 border-2 border-slate-800 focus:border-emerald-400 rounded-xl px-4 py-3.5 text-2xl sm:text-3xl num-font font-bold text-white focus:outline-none transition shadow-inner" placeholder="0.0">
+                            <!-- Quick Adjust Buttons -->
+                            <div class="absolute right-2 flex gap-1">
+                                <button onclick="adjustInputValue('inputPipeTemp', -1.0)" class="btn-touch w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-lg flex items-center justify-center border border-slate-700">-</button>
+                                <button onclick="adjustInputValue('inputPipeTemp', 1.0)" class="btn-touch w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-lg flex items-center justify-center border border-slate-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expansion Device Type Toggle -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="text-xs text-slate-400">
+                            <span class="font-bold text-slate-200 block mb-0.5">팽창밸브 방식 설정 (Metering Device)</span>
+                            목표 과열도 권장 기준 자동 보정에 사용됩니다.
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button id="expansionTXV" onclick="setExpansionType('TXV')" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-emerald-500/20 text-emerald-300 border-emerald-500/40">TXV / EEV</button>
+                            <button id="expansionFixed" onclick="setExpansionType('FIXED')" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-slate-800 text-slate-400 border-slate-700">모세관 / Fixed</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Calculation Results Output (Right 5 Columns) -->
+                <div class="lg:col-span-5 space-y-4">
+                    
+                    <!-- Superheat Card -->
+                    <div class="bg-slate-900 border-2 border-emerald-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">흡입 가스 과열도 (Superheat)</span>
+                            <span id="shBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">정상 범위</span>
+                        </div>
+                        <div class="flex items-baseline justify-between my-1">
+                            <div class="text-4xl sm:text-5xl font-black num-font text-emerald-400 tracking-tight" id="displaySuperheat">--</div>
+                            <div class="text-xs text-right font-mono text-slate-400">
+                                포화 기체(Dew): <span id="displaySatDew" class="text-white font-bold">--</span> <span class="tempUnitLabel">°C</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden my-3">
+                            <div id="shBar" class="bg-emerald-400 h-full transition-all duration-300" style="width: 50%;"></div>
+                        </div>
+                        <p class="text-xs text-slate-400 flex items-center justify-between">
+                            <span>권장 과열도: <strong class="text-slate-200" id="targetShText">5.0 ~ 8.0 °C</strong></span>
+                            <span class="text-emerald-400 font-semibold" id="shDiffText">알맞음</span>
+                        </p>
+                    </div>
+
+                    <!-- Subcooling Card -->
+                    <div class="bg-slate-900 border-2 border-cyan-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">액관 과냉각도 (Subcooling)</span>
+                            <span id="scBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">정상 범위</span>
+                        </div>
+                        <div class="flex items-baseline justify-between my-1">
+                            <div class="text-4xl sm:text-5xl font-black num-font text-cyan-400 tracking-tight" id="displaySubcooling">--</div>
+                            <div class="text-xs text-right font-mono text-slate-400">
+                                포화 액체(Bubble): <span id="displaySatBubble" class="text-white font-bold">--</span> <span class="tempUnitLabel">°C</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden my-3">
+                            <div id="scBar" class="bg-cyan-400 h-full transition-all duration-300" style="width: 50%;"></div>
+                        </div>
+                        <p class="text-xs text-slate-400 flex items-center justify-between">
+                            <span>권장 과냉각도: <strong class="text-slate-200">5.0 ~ 7.0 °C</strong></span>
+                            <span class="text-cyan-400 font-semibold" id="scDiffText">알맞음</span>
+                        </p>
+                    </div>
+
+                    <!-- Diagnostic Recommendation Box -->
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-microchip"></i> Coollab 현장 진단 가이드
+                        </h4>
+                        <p id="diagnosticGuideText" class="text-xs text-slate-300 leading-relaxed font-sans">
+                            측정 수치를 입력하면 시스템 고장 징후 및 냉매 상태를 판정합니다.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 2: P-T TABLE & SATURATION CURVE -->
+        <section id="ptTableTab" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-cyan-400"></i>
+                            <span id="chartTitleText">R-22 포화 압력-온도 곡선 (P-T Chart)</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">선택된 냉매의 포화 상태 압력 및 온도 상관관계 그래프입니다.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 font-mono">현재 활성 냉매: <strong class="text-emerald-400" id="currentActiveRefLabel">R-22</strong></span>
+                    </div>
+                </div>
+
+                <!-- Interactive Chart Canvas -->
+                <div class="h-64 sm:h-80 w-full bg-slate-950/60 rounded-xl p-2 border border-slate-800 relative">
+                    <canvas id="ptChartCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Full P-T Saturation Data Table -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-emerald-400"></i> 포화 상태 상세 데이터 테이블
+                    </h3>
+                    <input type="text" id="ptSearchInput" oninput="filterPtTable()" placeholder="압력/온도 검색..." class="bg-slate-950 border border-slate-800 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 w-36">
+                </div>
+
+                <div class="overflow-x-auto max-h-80 overflow-y-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-950 text-slate-400 font-mono sticky top-0 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">게이지 압력 (<span class="pressUnitLabel">bar</span>)</th>
+                                <th class="p-3">절대 압력 (<span class="pressUnitLabel">bar</span>a)</th>
+                                <th class="p-3">포화 액체 온도 (°C)</th>
+                                <th class="p-3">포화 기체 온도 (°C)</th>
+                                <th class="p-3">글라이드 (°C)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ptTableBody" class="divide-y divide-slate-800/60 num-font text-slate-300">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: DIGITAL FIELD REPORT -->
+        <section id="reportTab" class="tab-content hidden space-y-6">
+            
+            <!-- Report Actions Top Bar -->
+            <div class="no-print bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
+                <div>
+                    <h3 class="text-sm font-bold text-white">Coollab 디지털 현장 점검 보고서</h3>
+                    <p class="text-xs text-slate-400">실측 수치가 포함된 보고서를 PDF로 저장하거나 카카오톡으로 1초 공유할 수 있습니다.</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="shareKakaoReport()" class="btn-touch px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-comment text-slate-950"></i> 카카오톡 1초 공유
+                    </button>
+                    <button onclick="window.print()" class="btn-touch px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-print"></i> 보고서 인쇄 / PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Report Document Body -->
+            <div class="print-card bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-slate-200">
+                
+                <!-- Report Header -->
+                <div class="flex justify-between items-start border-b border-slate-800 pb-5">
+                    <div>
+                        <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-file-shield text-emerald-400 no-print"></i>
+                            Coollab 냉동공조 설비 점검 보고서
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Coollab HVAC Equipment Maintenance & Field Inspection Report</p>
+                    </div>
+                    <div class="text-right font-mono text-xs text-slate-400">
+                        <p>발행일: <span id="reportDate" class="text-slate-200 font-bold">2026-09-19</span></p>
+                        <p>문서번호: <span class="text-slate-200 font-bold">COOLLAB-20260919-01</span></p>
+                    </div>
+                </div>
+
+                <!-- Site and Engineer Meta Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">현장 및 담당자 정보</label>
+                        <input type="text" id="reportSiteName" value="고양시 종합병원 중앙기계실" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="현장명 입력">
+                        <input type="text" id="reportEngineerName" value="정비 엔지니어: 홍길동 (자격증번호: 24-0012)" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="엔지니어 성명">
+                    </div>
+                    <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">점검 대상 설비 정보</label>
+                        <input type="text" id="reportEquipmentName" value="옥상 3호기 터보 냉동기 / 패키지 에어컨" class="w-full bg-transparent border-b border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 py-1" placeholder="설비명 입력">
+                        <input type="text" id="reportEquipmentModel" value="모델명: L-HVAC-500RT / 사용냉매: R-22" class="w-full bg-transparent text-xs text-slate-300 focus:outline-none py-0.5" placeholder="모델명/사용 냉매">
+                    </div>
+                </div>
+
+                <!-- Measurement & Calculation Summary Table -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">실측 데이터 및 과열/과냉각 계산 결과</h4>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <tbody class="divide-y divide-slate-800 num-font">
+                                <tr class="bg-slate-950/80">
+                                    <td class="p-3 font-sans font-semibold text-slate-400">선택 적용 냉매</td>
+                                    <td id="rptRef" class="p-3 font-bold text-emerald-400">R-22</td>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">측정 게이지 압력</td>
+                                    <td id="rptPress" class="p-3 font-bold text-white">4.50 bar</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">포화 증기 온도 (Dew)</td>
+                                    <td id="rptSatDew" class="p-3 font-bold text-slate-200">2.7 °C</td>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">포화 액체 온도 (Bubble)</td>
+                                    <td id="rptSatBubble" class="p-3 font-bold text-slate-200">2.7 °C</td>
+                                </tr>
+                                <tr class="bg-slate-950/80">
+                                    <td class="p-3 font-sans font-semibold text-slate-400">실측 배관 온도</td>
+                                    <td id="rptPipeTemp" class="p-3 font-bold text-white">8.0 °C</td>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">산출 과열도 (Superheat)</td>
+                                    <td id="rptSH" class="p-3 font-black text-emerald-400 text-sm">5.3 °C (정상)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">산출 과냉각도 (Subcooling)</td>
+                                    <td id="rptSC" class="p-3 font-black text-cyan-400 text-sm">-- °C</td>
+                                    <td class="p-3 font-sans font-semibold text-slate-400">최종 종합 판정</td>
+                                    <td id="rptStatus" class="p-3 font-bold text-emerald-400">양호 (Normal)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Engineer Notes Field -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase">엔지니어 점검 소견 (Engineer Recommendations)</label>
+                    <textarea id="reportNotes" rows="3" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="특이사항 및 수리 권고 사항을 입력해주세요...">흡입 압력 및 과열도 수치가 권장 범위 내에 안정적으로 유지됨. 시스템 누설 이상 없음.</textarea>
+                </div>
+
+                <!-- Engineer Signature Block -->
+                <div class="pt-6 border-t border-slate-800 flex justify-between items-end text-xs text-slate-400">
+                    <div>
+                        <p>점검 기관: Coollab 스마트 공조 엔지니어링 센터</p>
+                        <p>기술 문의: 02-1234-5678</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="mb-4">점검 엔지니어 서명: ____________________ (인)</p>
+                        <p class="text-[10px] text-slate-500">본 보고서는 Coollab 스마트 진단 시스템으로 생성되었습니다.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TAB 4: MANUFACTURER ERROR CODES DB -->
+        <section id="errorCodeTab" class="tab-content hidden space-y-6">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-database text-amber-400"></i> 제조사 에러코드 & 조치 디렉터리
+                        </h3>
+                        <p class="text-xs text-slate-400">오프라인 현장에서도 주요 제조사별 에러코드 조치법을 즉시 검색할 수 있습니다.</p>
+                    </div>
+                </div>
+
+                <!-- Brand Filter and Search Controls -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-5">
+                    <div class="sm:col-span-4">
+                        <select id="errorBrandSelect" onchange="filterErrorCodes()" class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">전체 제조사 (All Brands)</option>
+                            <option value="LG">LG 전자 (HVAC)</option>
+                            <option value="SAMSUNG">삼성전자 (System AC)</option>
+                            <option value="CARRIER">캐리어 (Carrier)</option>
+                            <option value="TRANE">트레인 (Trane)</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-8">
+                        <div class="relative">
+                            <input type="text" id="errorSearchInput" oninput="filterErrorCodes()" placeholder="에러코드(예: CH05, E101) 또는 증상 검색..." class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-emerald-500">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Code Grid Container -->
+                <div id="errorCodeList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Cards populated via JS -->
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Application Footer with Subtle Developer Access Link -->
+    <footer class="no-print mt-auto py-6 border-t border-slate-900 bg-slate-950/80 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                <p>&copy; 2026 <strong class="text-slate-400">Coollab</strong> - Field Engineering Tool for HVAC Experts</p>
+            </div>
+            <!-- Discreet Developer Link for Benchmarking Roadmap -->
+            <div class="flex items-center gap-3">
+                <button onclick="openModal('devRoadmapModal')" class="text-[11px] text-slate-500 hover:text-indigo-400 font-mono transition flex items-center gap-1">
+                    <i class="fa-solid fa-code text-[10px]"></i> [Dev Only] 벤치마킹 로드맵
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: KakaoTalk Share Dialog -->
+    <div id="kakaoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-comment text-amber-400"></i> 카카오톡 1초 보고서 공유
+                </h3>
+                <button onclick="closeModal('kakaoModal')" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            
+            <p class="text-xs text-slate-300">
+                아래 요약 문구가 생성되었습니다. 현장 담당자에게 1초 만에 복사하여 공유할 수 있습니다.
+            </p>
+
+            <div class="bg-[#fef01b] text-slate-950 rounded-2xl p-4 space-y-2 shadow-lg">
+                <div class="flex items-center justify-between border-b border-black/10 pb-2">
+                    <span class="font-extrabold text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-snowflake"></i> Coollab 스마트 점검 보고
+                    </span>
+                    <span class="text-[10px] font-mono opacity-70">1초 공유</span>
+                </div>
+                <div class="text-xs font-mono whitespace-pre-line leading-relaxed font-semibold" id="kakaoPreviewContent">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="copyKakaoToClipboard()" class="flex-1 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-copy"></i> 문구 복사하기
+                </button>
+                <button onclick="closeModal('kakaoModal')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Field Engineer User Guide -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-emerald-400"></i> Coollab 안내
+                </h3>
+                <button onclick="closeModal('infoModal')" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+                <p><strong class="text-emerald-400">1. 과열도 (Superheat):</strong> 증발기 출구 흡입 배관 온도 - 해당 압력의 포화 기체(Dew) 온도 (권장: 5~8°C)</p>
+                <p><strong class="text-cyan-400">2. 과냉각도 (Subcooling):</strong> 응축기 출구 액관 압력의 포화 액체(Bubble) 온도 - 실측 액관 온도 (권장: 5~7°C)</p>
+                <p><strong class="text-amber-400">3. 선형 보간 엔진:</strong> NIST REFPROP 표준 데이터베이스 기반으로 정밀 보간 연산을 수행합니다.</p>
+                <p><strong class="text-slate-200">4. 오프라인 퍼스트:</strong> 지하 기계실 등 신호가 약한 현장에서도 상시 구동됩니다.</p>
+            </div>
+            <button onclick="closeModal('infoModal')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Developer Only Benchmarking Roadmap Modal -->
+    <div id="devRoadmapModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-indigo-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-xs font-mono font-bold">Dev Suite</span>
+                    <h3 class="text-base font-bold text-white">Coollab 개발자 전용 벤치마킹 로드맵</h3>
+                </div>
+                <button onclick="closeModal('devRoadmapModal')" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+
+            <!-- Progress Summary Header -->
+            <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 border border-indigo-500/20 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-200">Coollab 개발 및 기술 고도화 달성률</h4>
+                    <p class="text-[11px] text-slate-400">개발자 전용 내부 점검 항목입니다.</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xl font-black font-mono text-amber-400" id="roadmapProgressText">50%</span>
+                    <div class="w-28 bg-slate-800 h-2 rounded-full overflow-hidden mt-1">
+                        <div id="roadmapProgressBar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-full transition-all duration-300" style="width: 50%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Stage Developer Checklists -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                
+                <div class="bg-slate-950 border border-emerald-500/30 p-3.5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-emerald-400">Stage 1: P-T 정밀 연산 엔진</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">완료</span>
+                    </div>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" checked onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>선형 보간 수치 연산 알고리즘 구축</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" checked onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>TXV / Fixed 팽창밸브 보정 기준 적용</span>
+                    </label>
+                </div>
+
+                <div class="bg-slate-950 border border-amber-500/30 p-3.5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-amber-400">Stage 2: 1초 리포트 & 카톡 공유</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">적용됨</span>
+                    </div>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" checked onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>카카오톡 1초 요약 텍스트 생성</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" checked onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>현장 서식 PDF 및 출력 레이아웃 구현</span>
+                    </label>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-cyan-400">Stage 3: 제조사 DB & 예지보전</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">진행예정</span>
+                    </div>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>제조사 4사 에러 디렉터리 연동</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>과열도 급변 센서 모니터링 알람</span>
+                    </label>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-purple-400">Stage 4: 친환경 냉매 & BEMS</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">비전</span>
+                    </div>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>R-32, R-1234yf 등 친환경 냉매 전면 확장</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                        <input type="checkbox" onchange="updateRoadmapProgress()" class="roadmap-check rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>건물 관제(BEMS) 프로토콜 API 연동</span>
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="text-right">
+                <button onclick="closeModal('devRoadmapModal')" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-2xl transition opacity-0 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-check-circle"></i> <span id="toastMsg">메시지</span>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- APPLICATION LOGIC & DATA SCRIPTS                                     -->
+    <!-- ==================================================================== -->
+    <script>
+        /**
+         * Refrigerant Saturation Database (NIST REFPROP Matched Data)
+         * - pGaugeBar: Gauge pressure in bar
+         * - tBubble: Liquid saturation temperature (°C)
+         * - tDew: Vapor saturation temperature (°C)
+         */
+        const REFRIGERANT_DATABASE = {
+            'R-22': {
+                type: '단일 냉매 (HCFC)',
+                data: [
+                    { pGaugeBar: 1.0, tBubble: -20.8, tDew: -20.8 },
+                    { pGaugeBar: 2.0, tBubble: -11.5, tDew: -11.5 },
+                    { pGaugeBar: 3.0, tBubble: -4.0, tDew: -4.0 },
+                    { pGaugeBar: 4.0, tBubble: 2.3, tDew: 2.3 },
+                    { pGaugeBar: 4.5, tBubble: 5.2, tDew: 5.2 },
+                    { pGaugeBar: 5.0, tBubble: 7.9, tDew: 7.9 },
+                    { pGaugeBar: 6.0, tBubble: 12.8, tDew: 12.8 },
+                    { pGaugeBar: 7.0, tBubble: 17.1, tDew: 17.1 },
+                    { pGaugeBar: 8.0, tBubble: 21.0, tDew: 21.0 },
+                    { pGaugeBar: 10.0, tBubble: 27.9, tDew: 27.9 },
+                    { pGaugeBar: 12.0, tBubble: 33.8, tDew: 33.8 },
+                    { pGaugeBar: 15.0, tBubble: 41.5, tDew: 41.5 },
+                    { pGaugeBar: 18.0, tBubble: 48.0, tDew: 48.0 },
+                    { pGaugeBar: 20.0, tBubble: 52.0, tDew: 52.0 }
+                ]
+            },
+            'R-410A': {
+                type: '혼합 냉매 (HFC - Near Azeotropic)',
+                data: [
+                    { pGaugeBar: 2.0, tBubble: -23.5, tDew: -23.4 },
+                    { pGaugeBar: 4.0, tBubble: -11.8, tDew: -11.7 },
+                    { pGaugeBar: 6.0, tBubble: -2.8, tDew: -2.7 },
+                    { pGaugeBar: 8.0, tBubble: 4.7, tDew: 4.8 },
+                    { pGaugeBar: 10.0, tBubble: 11.2, tDew: 11.3 },
+                    { pGaugeBar: 12.0, tBubble: 16.9, tDew: 17.0 },
+                    { pGaugeBar: 15.0, tBubble: 24.3, tDew: 24.4 },
+                    { pGaugeBar: 18.0, tBubble: 30.6, tDew: 30.7 },
+                    { pGaugeBar: 22.0, tBubble: 37.9, tDew: 38.0 },
+                    { pGaugeBar: 26.0, tBubble: 44.3, tDew: 44.4 },
+                    { pGaugeBar: 30.0, tBubble: 50.1, tDew: 50.2 }
+                ]
+            },
+            'R-134a': {
+                type: '단일 냉매 (HFC)',
+                data: [
+                    { pGaugeBar: 0.5, tBubble: -18.8, tDew: -18.8 },
+                    { pGaugeBar: 1.0, tBubble: -10.1, tDew: -10.1 },
+                    { pGaugeBar: 1.5, tBubble: -3.3, tDew: -3.3 },
+                    { pGaugeBar: 2.0, tBubble: 2.4, tDew: 2.4 },
+                    { pGaugeBar: 2.5, tBubble: 7.3, tDew: 7.3 },
+                    { pGaugeBar: 3.0, tBubble: 11.7, tDew: 11.7 },
+                    { pGaugeBar: 4.0, tBubble: 19.2, tDew: 19.2 },
+                    { pGaugeBar: 5.0, tBubble: 25.4, tDew: 25.4 },
+                    { pGaugeBar: 6.0, tBubble: 30.8, tDew: 30.8 },
+                    { pGaugeBar: 8.0, tBubble: 40.0, tDew: 40.0 },
+                    { pGaugeBar: 10.0, tBubble: 47.7, tDew: 47.7 }
+                ]
+            },
+            'R-404A': {
+                type: '혼합 냉매 (HFC - Near Azeotropic)',
+                data: [
+                    { pGaugeBar: 1.0, tBubble: -26.1, tDew: -25.6 },
+                    { pGaugeBar: 2.0, tBubble: -17.2, tDew: -16.7 },
+                    { pGaugeBar: 3.0, tBubble: -10.2, tDew: -9.7 },
+                    { pGaugeBar: 4.0, tBubble: -4.3, tDew: -3.8 },
+                    { pGaugeBar: 5.0, tBubble: 0.8, tDew: 1.3 },
+                    { pGaugeBar: 7.0, tBubble: 9.6, tDew: 10.1 },
+                    { pGaugeBar: 10.0, tBubble: 20.3, tDew: 20.8 },
+                    { pGaugeBar: 14.0, tBubble: 31.6, tDew: 32.1 },
+                    { pGaugeBar: 18.0, tBubble: 40.7, tDew: 41.2 }
+                ]
+            },
+            'R-32': {
+                type: '단일 차세대 친환경 냉매 (HFC/A2L)',
+                data: [
+                    { pGaugeBar: 2.0, tBubble: -24.2, tDew: -24.2 },
+                    { pGaugeBar: 4.0, tBubble: -12.5, tDew: -12.5 },
+                    { pGaugeBar: 6.0, tBubble: -3.6, tDew: -3.6 },
+                    { pGaugeBar: 8.0, tBubble: 3.8, tDew: 3.8 },
+                    { pGaugeBar: 10.0, tBubble: 10.1, tDew: 10.1 },
+                    { pGaugeBar: 15.0, tBubble: 23.2, tDew: 23.2 },
+                    { pGaugeBar: 20.0, tBubble: 33.6, tDew: 33.6 },
+                    { pGaugeBar: 25.0, tBubble: 42.1, tDew: 42.1 }
+                ]
+            },
+            'R-1234yf': {
+                type: '차세대 저GWP 냉매 (HFO)',
+                data: [
+                    { pGaugeBar: 0.5, tBubble: -19.5, tDew: -19.5 },
+                    { pGaugeBar: 1.0, tBubble: -11.2, tDew: -11.2 },
+                    { pGaugeBar: 2.0, tBubble: 1.2, tDew: 1.2 },
+                    { pGaugeBar: 3.0, tBubble: 10.2, tDew: 10.2 },
+                    { pGaugeBar: 4.0, tBubble: 17.5, tDew: 17.5 },
+                    { pGaugeBar: 6.0, tBubble: 29.1, tDew: 29.1 },
+                    { pGaugeBar: 8.0, tBubble: 38.3, tDew: 38.3 }
+                ]
+            }
+        };
+
+        /**
+         * HVAC Manufacturer Error Codes Database
+         */
+        const ERROR_CODE_DATABASE = [
+            {
+                brand: 'LG',
+                code: 'CH05',
+                name: '실내외기 통신 에러',
+                cause: '실내기와 실외기간 통신 선로 이상 또는 전원 전압 불균형',
+                fix: '1. 실내외기 연결 통신선 결선 상태 점검 (CN_COM)\n2. 통신 전압 (DC 10~20V) 메인보드 출력 측정\n3. 노이즈 차단용 페라이트 코어 설치 확인'
+            },
+            {
+                brand: 'LG',
+                code: 'CH21',
+                name: '인버터 압축기 과전류 (DC Peak)',
+                cause: '압축기 구동 IPM 모듈 과전류 감지 또는 압축기 구동 구속',
+                fix: '1. 실외기 팬 모터 동작 상태 및 열교환기 막힘 확인\n2. 인버터 IPM 방열판 구리스 결착 상태 점검\n3. Comp 권선 저항 (U-V-W 균일성 0.5~2.0Ω) 측정'
+            },
+            {
+                brand: 'SAMSUNG',
+                code: 'E101',
+                name: '실내기 통신 에러',
+                cause: '실내기와 실외기 간 통신 수신 불능',
+                fix: '1. 통신선 V1, V2 단자 전압 측정 (DC 0.5V~3V 변동)\n2. 실내기/실외기 PBA 통신 IC 단자 냉땜 확인'
+            },
+            {
+                brand: 'SAMSUNG',
+                code: 'E464',
+                name: '인버터 과전류 에러 (IPM Overcurrent)',
+                cause: '압축기 구동부 고부하, 냉매 과충전 또는 압축기 구속',
+                fix: '1. 고압 게이지 측정 및 냉매 과충전 여부 확인\n2. 실외기 EEV 개폐 구동음 및 동작 상태 확인\n3. IPM 파워 모듈 단락 테스트'
+            },
+            {
+                brand: 'CARRIER',
+                code: 'E3',
+                name: '저압 스위치 작동 (Low Pressure Cut)',
+                cause: '흡입 압력 과도 저하 (냉매 누설 또는 증발기 팬 정지)',
+                fix: '1. 게이지 연결하여 냉매 누설 여부 점검\n2. 팽창밸브 막힘 및 필터드라이어 차압 점검\n3. 저압 압력스위치 접점 도통 확인'
+            },
+            {
+                brand: 'TRANE',
+                code: 'A1',
+                name: '고압 안전 스위치 트리거 (High Pressure Trip)',
+                cause: '응축기 방열 불량, 팬 모터 고장 또는 불응축 가스 혼입',
+                fix: '1. 응축기 코일 먼지 세척 및 핀 오염 상태 점검\n2. 실외 팬 동작 및 회전수 점검\n3. 시스템 내 불응축 가스 진공 작업 재실시'
+            }
+        ];
+
+        /**
+         * Application State Holder
+         */
+        let appState = {
+            selectedRefrigerant: 'R-22',
+            pressureUnit: 'bar', // bar, psi, kPa, MPa, kgf/cm2
+            tempUnit: 'C',       // C, F
+            unitSystem: 'METRIC', // METRIC or IMPERIAL
+            expansionType: 'TXV', // TXV or FIXED
+            ptChartInstance: null
+        };
+
+        /**
+         * Unit Converter Utilities
+         */
+        const unitConverter = {
+            pressureToBar: (val, unit) => {
+                switch(unit) {
+                    case 'psi': return val / 14.5038;
+                    case 'kPa': return val / 100;
+                    case 'MPa': return val * 10;
+                    case 'kgf/cm2': return val / 1.01972;
+                    default: return val; // bar
+                }
+            },
+            barToUnit: (barVal, unit) => {
+                switch(unit) {
+                    case 'psi': return barVal * 14.5038;
+                    case 'kPa': return barVal * 100;
+                    case 'MPa': return barVal / 10;
+                    case 'kgf/cm2': return barVal * 1.01972;
+                    default: return barVal; // bar
+                }
+            },
+            tempToCelsius: (val, unit) => unit === 'F' ? (val - 32) * 5 / 9 : val,
+            celsiusToUnit: (cVal, unit) => unit === 'F' ? (cVal * 9 / 5) + 32 : cVal
+        };
+
+        /**
+         * Page Initialization
+         */
+        window.onload = function() {
+            renderRefrigerantButtons();
+            calculateSuperheatSubcooling();
+            initPtChart();
+            renderPtTable();
+            renderErrorCodes();
+            
+            // Set current date on inspection report
+            const todayDateStr = new Date().toISOString().split('T')[0];
+            document.getElementById('reportDate').innerText = todayDateStr;
+        };
+
+        /**
+         * Switch Main Tabs (1: SH/SC Calc, 2: P-T Table, 3: Report, 4: Error Codes)
+         */
+        function switchMainTab(targetTabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(targetTabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50';
+            });
+
+            const activeBtn = document.getElementById('tab-' + targetTabId);
+            activeBtn.className = 'tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950 shadow-md';
+
+            // Resize chart when P-T tab becomes visible
+            if (targetTabId === 'ptTableTab' && appState.ptChartInstance) {
+                setTimeout(() => appState.ptChartInstance.resize(), 50);
+            }
+        }
+
+        /**
+         * Render Refrigerant Selection Buttons dynamically
+         */
+        function renderRefrigerantButtons() {
+            const groupContainer = document.getElementById('refrigerantSelectorGroup');
+            groupContainer.innerHTML = '';
+
+            Object.keys(REFRIGERANT_DATABASE).forEach(refKey => {
+                const isSelected = refKey === appState.selectedRefrigerant;
+                const button = document.createElement('button');
+                button.className = `btn-touch py-3 px-2 rounded-xl text-xs font-black transition border flex flex-col items-center justify-center gap-1 ${
+                    isSelected 
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-500/20' 
+                    : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'
+                }`;
+                button.onclick = () => selectRefrigerant(refKey);
+                button.innerHTML = `<span>${refKey}</span>`;
+                groupContainer.appendChild(button);
+            });
+
+            document.getElementById('refrigerantTypeBadge').innerText = REFRIGERANT_DATABASE[appState.selectedRefrigerant].type;
+            document.getElementById('currentActiveRefLabel').innerText = appState.selectedRefrigerant;
+            document.getElementById('chartTitleText').innerText = `${appState.selectedRefrigerant} 포화 압력-온도 곡선 (P-T Chart)`;
+        }
+
+        /**
+         * Select Refrigerant
+         */
+        function selectRefrigerant(refrigerantName) {
+            appState.selectedRefrigerant = refrigerantName;
+            renderRefrigerantButtons();
+            calculateSuperheatSubcooling();
+            updatePtChart();
+            renderPtTable();
+            showToast(`${refrigerantName} 냉매가 선택되었습니다.`);
+        }
+
+        /**
+         * Step Adjust Input Value (+ / - buttons)
+         */
+        function adjustInputValue(inputId, delta) {
+            const inputEl = document.getElementById(inputId);
+            let currentVal = parseFloat(inputEl.value) || 0;
+            currentVal = Math.max(0, currentVal + delta);
+            inputEl.value = currentVal.toFixed(1);
+            calculateSuperheatSubcooling();
+        }
+
+        /**
+         * Toggle Metering Expansion Device Type
+         */
+        function setExpansionType(type) {
+            appState.expansionType = type;
+            const txvBtn = document.getElementById('expansionTXV');
+            const fixedBtn = document.getElementById('expansionFixed');
+
+            if (type === 'TXV') {
+                txvBtn.className = 'flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                fixedBtn.className = 'flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-slate-800 text-slate-400 border-slate-700';
+            } else {
+                fixedBtn.className = 'flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                txvBtn.className = 'flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-slate-800 text-slate-400 border-slate-700';
+            }
+            calculateSuperheatSubcooling();
+        }
+
+        /**
+         * Toggle Metric / Imperial Unit System
+         */
+        function toggleUnitSystem() {
+            if (appState.unitSystem === 'METRIC') {
+                appState.unitSystem = 'IMPERIAL';
+                appState.pressureUnit = 'psi';
+                appState.tempUnit = 'F';
+                document.getElementById('unitSystemText').innerText = 'Imperial (psi, °F)';
+            } else {
+                appState.unitSystem = 'METRIC';
+                appState.pressureUnit = 'bar';
+                appState.tempUnit = 'C';
+                document.getElementById('unitSystemText').innerText = 'Metric (bar, °C)';
+            }
+            document.getElementById('pressureUnitSelect').value = appState.pressureUnit;
+            document.getElementById('tempUnitSelect').value = appState.tempUnit;
+            
+            document.querySelectorAll('.tempUnitLabel').forEach(el => el.innerText = '°' + appState.tempUnit);
+            document.querySelectorAll('.pressUnitLabel').forEach(el => el.innerText = appState.pressureUnit);
+
+            calculateSuperheatSubcooling();
+            renderPtTable();
+            updatePtChart();
+            showToast(`단위계 변경: ${appState.pressureUnit}, °${appState.tempUnit}`);
+        }
+
+        /**
+         * Linear Interpolation Calculation Formula
+         */
+        function linearInterpolate(x, x1, y1, x2, y2) {
+            if (x1 === x2) return y1;
+            return y1 + ((x - x1) * (y2 - y1)) / (x2 - x1);
+        }
+
+        /**
+         * Main Engine: Calculate Superheat and Subcooling
+         */
+        function calculateSuperheatSubcooling() {
+            appState.pressureUnit = document.getElementById('pressureUnitSelect').value;
+            appState.tempUnit = document.getElementById('tempUnitSelect').value;
+
+            document.querySelectorAll('.tempUnitLabel').forEach(el => el.innerText = '°' + appState.tempUnit);
+            document.querySelectorAll('.pressUnitLabel').forEach(el => el.innerText = appState.pressureUnit);
+
+            const rawPressure = parseFloat(document.getElementById('inputPressure').value);
+            const rawPipeTemp = parseFloat(document.getElementById('inputPipeTemp').value);
+
+            if (isNaN(rawPressure) || isNaN(rawPipeTemp)) return;
+
+            // Convert to standard Bar and Celsius for table lookups
+            const pBar = unitConverter.pressureToBar(rawPressure, appState.pressureUnit);
+            const tCelsius = unitConverter.tempToCelsius(rawPipeTemp, appState.tempUnit);
+
+            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+            
+            let lowerPoint = dataset[0];
+            let upperPoint = dataset[dataset.length - 1];
+
+            if (pBar <= dataset[0].pGaugeBar) {
+                lowerPoint = upperPoint = dataset[0];
+            } else if (pBar >= dataset[dataset.length - 1].pGaugeBar) {
+                lowerPoint = upperPoint = dataset[dataset.length - 1];
+            } else {
+                for (let i = 0; i < dataset.length - 1; i++) {
+                    if (pBar >= dataset[i].pGaugeBar && pBar <= dataset[i+1].pGaugeBar) {
+                        lowerPoint = dataset[i];
+                        upperPoint = dataset[i+1];
+                        break;
+                    }
+                }
+            }
+
+            // Interpolate Dew and Bubble temperatures
+            const satDewC = linearInterpolate(pBar, lowerPoint.pGaugeBar, lowerPoint.tDew, upperPoint.pGaugeBar, upperPoint.tDew);
+            const satBubbleC = linearInterpolate(pBar, lowerPoint.pGaugeBar, lowerPoint.tBubble, upperPoint.pGaugeBar, upperPoint.tBubble);
+
+            const superheatC = tCelsius - satDewC;
+            const subcoolingC = satBubbleC - tCelsius;
+
+            // Display unit conversions
+            const satDewDisplay = unitConverter.celsiusToUnit(satDewC, appState.tempUnit);
+            const satBubbleDisplay = unitConverter.celsiusToUnit(satBubbleC, appState.tempUnit);
+            const shDisplay = appState.tempUnit === 'F' ? superheatC * 1.8 : superheatC;
+            const scDisplay = appState.tempUnit === 'F' ? subcoolingC * 1.8 : subcoolingC;
+
+            document.getElementById('displaySatDew').innerText = satDewDisplay.toFixed(1);
+            document.getElementById('displaySatBubble').innerText = satBubbleDisplay.toFixed(1);
+            document.getElementById('displaySuperheat').innerText = shDisplay.toFixed(1) + ' °' + appState.tempUnit;
+            document.getElementById('displaySubcooling').innerText = scDisplay.toFixed(1) + ' °' + appState.tempUnit;
+
+            const targetMinSH = appState.expansionType === 'TXV' ? (appState.tempUnit === 'F' ? 9 : 5) : (appState.tempUnit === 'F' ? 14 : 8);
+            const targetMaxSH = appState.expansionType === 'TXV' ? (appState.tempUnit === 'F' ? 15 : 8) : (appState.tempUnit === 'F' ? 22 : 12);
+            document.getElementById('targetShText').innerText = `${targetMinSH.toFixed(1)} ~ ${targetMaxSH.toFixed(1)} °${appState.tempUnit}`;
+
+            updateDiagnosticGuide(shDisplay, scDisplay, targetMinSH, targetMaxSH);
+            syncValuesToReportTab(rawPressure, rawPipeTemp, satDewDisplay, satBubbleDisplay, shDisplay, scDisplay);
+        }
+
+        /**
+         * Update System Diagnostic Advice
+         */
+        function updateDiagnosticGuide(shVal, scVal, minSH, maxSH) {
+            const shBadge = document.getElementById('shBadge');
+            const guideText = document.getElementById('diagnosticGuideText');
+            const shDiffText = document.getElementById('shDiffText');
+
+            let status = 'NORMAL';
+            if (shVal < minSH) status = 'LOW';
+            else if (shVal > maxSH) status = 'HIGH';
+
+            if (status === 'NORMAL') {
+                shBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                shBadge.innerText = '정상 과열도';
+                shDiffText.innerText = '적정 범위';
+                shDiffText.className = 'text-emerald-400 font-semibold';
+                guideText.innerHTML = `<span class="text-emerald-400 font-bold">✔ 증발기 과열도가 정상 상태입니다.</span> 압축기로의 액백 위험이 없으며 냉동 능력 및 COP 효율이 최적 상태입니다.`;
+            } else if (status === 'HIGH') {
+                shBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30';
+                shBadge.innerText = '높음 (냉매 부족/막힘)';
+                shDiffText.innerText = '높음';
+                shDiffText.className = 'text-rose-400 font-semibold';
+                guideText.innerHTML = `<span class="text-rose-400 font-bold">⚠ 과열도 과다 (High Superheat):</span> 증발기로 유입되는 냉매가 부족하거나 팽창밸브 열림도가 낮습니다.<br>• <strong>점검 포인트:</strong> 냉매 누설, 모세관/TXV 막힘, 필터드라이어 차압 발생 여부.`;
+            } else {
+                shBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+                shBadge.innerText = '낮음 (액백 위험)';
+                shDiffText.innerText = '낮음';
+                shDiffText.className = 'text-cyan-400 font-semibold';
+                guideText.innerHTML = `<span class="text-cyan-400 font-bold">⚠ 과열도 과소 (Low Superheat):</span> 미증발 액냉매가 압축기로 유입될 위험이 있습니다.<br>• <strong>점검 포인트:</strong> 증발기 팬 풍량 부족, 필터 오염, TXV 과도한 개방, 냉매 과충전.`;
+            }
+        }
+
+        /**
+         * Sync Measurements to Printable Report Tab
+         */
+        function syncValuesToReportTab(rawP, rawT, satDew, satBubble, sh, sc) {
+            document.getElementById('rptRef').innerText = appState.selectedRefrigerant;
+            document.getElementById('rptPress').innerText = `${rawP.toFixed(2)} ${appState.pressureUnit}`;
+            document.getElementById('rptPipeTemp').innerText = `${rawT.toFixed(1)} °${appState.tempUnit}`;
+            document.getElementById('rptSatDew').innerText = `${satDew.toFixed(1)} °${appState.tempUnit}`;
+            document.getElementById('rptSatBubble').innerText = `${satBubble.toFixed(1)} °${appState.tempUnit}`;
+            document.getElementById('rptSH').innerText = `${sh.toFixed(1)} °${appState.tempUnit}`;
+            document.getElementById('rptSC').innerText = `${sc.toFixed(1)} °${appState.tempUnit}`;
+        }
+
+        /**
+         * Initialize P-T Saturation Chart
+         */
+        function initPtChart() {
+            const ctx = document.getElementById('ptChartCanvas').getContext('2d');
+            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+
+            const xLabels = dataset.map(d => unitConverter.barToUnit(d.pGaugeBar, appState.pressureUnit).toFixed(1));
+            const yTemps = dataset.map(d => unitConverter.celsiusToUnit(d.tDew, appState.tempUnit).toFixed(1));
+
+            appState.ptChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xLabels,
+                    datasets: [{
+                        label: `포화 기체 온도 (°${appState.tempUnit})`,
+                        data: yTemps,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#38bdf8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { family: 'Inter', size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` 포화온도: ${context.raw} °${appState.tempUnit}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+                            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } },
+                            title: { display: true, text: `게이지 압력 (${appState.pressureUnit})`, color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+                            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } },
+                            title: { display: true, text: `온도 (°${appState.tempUnit})`, color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Update Chart Data when Refrigerant or Unit Changes
+         */
+        function updatePtChart() {
+            if (!appState.ptChartInstance) return;
+            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+            appState.ptChartInstance.data.labels = dataset.map(d => unitConverter.barToUnit(d.pGaugeBar, appState.pressureUnit).toFixed(1));
+            appState.ptChartInstance.data.datasets[0].data = dataset.map(d => unitConverter.celsiusToUnit(d.tDew, appState.tempUnit).toFixed(1));
+            appState.ptChartInstance.data.datasets[0].label = `${appState.selectedRefrigerant} 포화 기체 온도 (°${appState.tempUnit})`;
+            appState.ptChartInstance.update();
+        }
+
+        /**
+         * Render P-T Saturation Table
+         */
+        function renderPtTable() {
+            const tbody = document.getElementById('ptTableBody');
+            tbody.innerHTML = '';
+
+            const dataset = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+            dataset.forEach(row => {
+                const pressGauge = unitConverter.barToUnit(row.pGaugeBar, appState.pressureUnit).toFixed(2);
+                const pressAbs = unitConverter.barToUnit(row.pGaugeBar + 1.013, appState.pressureUnit).toFixed(2);
+                const bubbleTemp = unitConverter.celsiusToUnit(row.tBubble, appState.tempUnit).toFixed(1);
+                const dewTemp = unitConverter.celsiusToUnit(row.tDew, appState.tempUnit).toFixed(1);
+                const glideVal = (row.tDew - row.tBubble).toFixed(1);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-emerald-400">${pressGauge}</td>
+                    <td class="p-3 text-slate-400">${pressAbs}</td>
+                    <td class="p-3 text-cyan-300">${bubbleTemp}</td>
+                    <td class="p-3 text-slate-200">${dewTemp}</td>
+                    <td class="p-3 text-amber-400">${glideVal}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /**
+         * Filter P-T Saturation Table Search
+         */
+        function filterPtTable() {
+            const query = document.getElementById('ptSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#ptTableBody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        /**
+         * Render Error Code Cards
+         */
+        function renderErrorCodes(filteredList = ERROR_CODE_DATABASE) {
+            const container = document.getElementById('errorCodeList');
+            container.innerHTML = '';
+
+            if (filteredList.length === 0) {
+                container.innerHTML = `<p class="col-span-2 text-center text-xs text-slate-500 py-8">검색어와 일치하는 에러코드가 없습니다.</p>`;
+                return;
+            }
+
+            filteredList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-2 hover:border-slate-700 transition';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">${item.brand}</span>
+                        <span class="text-sm font-black num-font text-rose-400">${item.code}</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-white">${item.name}</h4>
+                    <p class="text-[11px] text-slate-400"><strong>추정 원인:</strong> ${item.cause}</p>
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 text-[11px] text-emerald-300 whitespace-pre-line font-mono">
+<i class="fa-solid fa-wrench text-emerald-500"></i> 현장 조치 가이드:
+${item.fix}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /**
+         * Filter Error Codes by Brand & Keyword
+         */
+        function filterErrorCodes() {
+            const selectedBrand = document.getElementById('errorBrandSelect').value;
+            const query = document.getElementById('errorSearchInput').value.toLowerCase();
+
+            const filtered = ERROR_CODE_DATABASE.filter(item => {
+                const matchBrand = (selectedBrand === 'ALL' || item.brand === selectedBrand);
+                const matchQuery = item.code.toLowerCase().includes(query) || 
+                                   item.name.toLowerCase().includes(query) || 
+                                   item.cause.toLowerCase().includes(query);
+                return matchBrand && matchQuery;
+            });
+
+            renderErrorCodes(filtered);
+        }
+
+        /**
+         * Open KakaoTalk Summary Share Modal
+         */
+        function shareKakaoReport() {
+            const siteName = document.getElementById('reportSiteName').value || '현장 미입력';
+            const equipmentName = document.getElementById('reportEquipmentName').value || '설비 미입력';
+            const refName = appState.selectedRefrigerant;
+            const pressureVal = document.getElementById('inputPressure').value + ' ' + appState.pressureUnit;
+            const tempVal = document.getElementById('inputPipeTemp').value + ' °' + appState.tempUnit;
+            const shVal = document.getElementById('displaySuperheat').innerText;
+            const scVal = document.getElementById('displaySubcooling').innerText;
+            const statusText = document.getElementById('shBadge').innerText;
+
+            const summaryText = 
+`[Coollab 스마트 공조 점검]
+■ 현장: ${siteName}
+■ 설비: ${equipmentName}
+------------------
+• 사용 냉매: ${refName}
+• 게이지 압력: ${pressureVal}
+• 실측 배관온도: ${tempVal}
+• 과열도(SH): ${shVal}
+• 과냉각도(SC): ${scVal}
+------------------
+■ 진단 상태: ${statusText}
+■ 엔지니어 소견: 이상 없음. 표준범위 가동중.`;
+
+            document.getElementById('kakaoPreviewContent').innerText = summaryText;
+            openModal('kakaoModal');
+        }
+
+        /**
+         * Copy Kakao Text to Clipboard
+         */
+        function copyKakaoToClipboard() {
+            const textToCopy = document.getElementById('kakaoPreviewContent').innerText;
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            closeModal('kakaoModal');
+            showToast('점검 결과 요약문이 클립보드에 복사되었습니다!');
+        }
+
+        /**
+         * Developer Roadmap Score Calculation
+         */
+        function updateRoadmapProgress() {
+            const checkboxes = document.querySelectorAll('.roadmap-check');
+            let checkedCount = 0;
+            checkboxes.forEach(cb => {
+                if (cb.checked) checkedCount++;
+            });
+
+            const percent = Math.round((checkedCount / checkboxes.length) * 100);
+            document.getElementById('roadmapProgressText').innerText = `${percent}%`;
+            document.getElementById('roadmapProgressBar').style.width = `${percent}%`;
+        }
+
+        /**
+         * Modal Utilities
+         */
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        /**
+         * Toast Notification Utility
+         */
+        function showToast(message) {
+            const toastEl = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toastEl.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toastEl.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
