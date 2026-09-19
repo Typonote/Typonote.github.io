@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coollab - 공조냉동 현장 스마트 엔지니어 도구</title>
+    <title>Coollab PRO v3 - HVAC 현장 엔지니어 도구</title>
     
     <!-- Tailwind CSS Engine -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,6 +52,18 @@
             .print-only { display: block !important; }
             .print-card { border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; background: white !important; }
         }
+        .symptom-btn { min-height: 58px; border: 1px solid #334155; border-radius: .75rem; background:#0f172a; color:#cbd5e1; font-size:.72rem; font-weight:800; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.3rem; transition:.15s; }
+        .symptom-btn:hover { border-color:#475569; background:#1e293b; color:#fff; }
+        .symptom-btn.active { border-color:#10b981; background:rgba(16,185,129,.12); color:#6ee7b7; box-shadow:0 0 0 1px rgba(16,185,129,.15); }
+        .field-input { width:100%; background:#020617; border:1px solid #334155; color:#f8fafc; border-radius:.75rem; padding:.7rem .8rem; outline:none; font-size:.8rem; }
+        .field-input:focus { border-color:#10b981; box-shadow:0 0 0 2px rgba(16,185,129,.08); }
+        .field-label { color:#94a3b8; font-size:.68rem; font-weight:700; }
+        .step-num { display:inline-flex; width:22px; height:22px; border-radius:999px; background:#0f766e; color:#a7f3d0; align-items:center; justify-content:center; font-family:monospace; margin-right:.35rem; }
+        .photo-thumb { position:relative; aspect-ratio:1; overflow:hidden; border-radius:.75rem; border:1px solid #334155; background:#020617; }
+        .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+        .photo-remove { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:999px; background:rgba(15,23,42,.85); color:#fda4af; border:1px solid #475569; }
+        @media print { .no-print, nav, header { display:none !important; } }
+
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-900 pb-16 md:pb-0">
@@ -67,9 +79,9 @@
                 <div>
                     <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white flex items-center gap-2">
                         Coollab <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">PRO</span>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">v2.4</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">v3.0</span>
                     </h1>
-                    <p class="text-xs text-slate-400 hidden sm:block">공조냉동 현장 스마트 게이지 & 진단 솔루션</p>
+                    <p class="text-xs text-slate-400 hidden sm:block">현장 진단 · 측정 · 기록 · 보고 솔루션</p>
                 </div>
             </div>
 
@@ -90,21 +102,120 @@
 
     <div class="max-w-6xl mx-auto w-full px-3 md:px-6 py-4 flex-1">
         
-        <!-- Main Navigation Tabs (Clean 4-tab layout for technicians) -->
-        <nav class="flex space-x-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 mb-6 no-print overflow-x-auto">
-            <button onclick="switchMainTab('calcTab')" id="tab-calcTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950 shadow-md">
-                <i class="fa-solid fa-calculator"></i> SH/SC 계산기
+        <!-- Main Navigation: Field Engineer Workflow -->
+        <nav class="flex gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 mb-6 no-print overflow-x-auto">
+            <button onclick="switchMainTab('fieldTab')" id="tab-fieldTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition bg-emerald-500 text-slate-950 shadow-md">
+                <i class="fa-solid fa-screwdriver-wrench"></i> 현장진단
             </button>
-            <button onclick="switchMainTab('ptTableTab')" id="tab-ptTableTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
-                <i class="fa-solid fa-chart-line"></i> P-T 포화표 & 곡선
+            <button onclick="switchMainTab('calcTab')" id="tab-calcTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-calculator"></i> 냉매진단
             </button>
-            <button onclick="switchMainTab('reportTab')" id="tab-reportTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
-                <i class="fa-solid fa-file-contract"></i> 점검 리포트
+            <button onclick="switchMainTab('errorCodeTab')" id="tab-errorCodeTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-triangle-exclamation"></i> 에러코드
             </button>
-            <button onclick="switchMainTab('errorCodeTab')" id="tab-errorCodeTab" class="tab-btn flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
-                <i class="fa-solid fa-triangle-exclamation"></i> 에러코드 DB
+            <button onclick="switchMainTab('reportTab')" id="tab-reportTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-file-contract"></i> 보고서
+            </button>
+            <button onclick="switchMainTab('logTab')" id="tab-logTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-clock-rotate-left"></i> 작업기록
+            </button>
+            <button onclick="switchMainTab('ptTableTab')" id="tab-ptTableTab" class="tab-btn flex-1 min-w-[112px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800/50">
+                <i class="fa-solid fa-chart-line"></i> P-T
             </button>
         </nav>
+
+        <div class="mb-6 no-print bg-gradient-to-r from-emerald-500/10 via-cyan-500/5 to-transparent border border-emerald-500/20 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-route"></i></div>
+                <div>
+                    <p class="text-sm font-bold text-white">측정 → 계산 → 해석 → 조치 → 기록 → 보고</p>
+                    <p class="text-xs text-slate-400 mt-1">Coollab은 측정값만 계산하는 도구가 아니라 현장 작업의 다음 행동을 정리하는 보조 도구입니다.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 0: FIELD DIAGNOSIS WORKFLOW -->
+        <section id="fieldTab" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                <div class="xl:col-span-7 space-y-5">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-stethoscope text-emerald-400"></i> 증상 기반 현장진단</h3>
+                                <p class="text-xs text-slate-400 mt-1">증상을 먼저 선택하고 측정값을 넣으면 우선 점검 항목을 제시합니다.</p>
+                            </div>
+                            <span class="text-[10px] px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">참고용 의사결정 보조</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                            <button class="symptom-btn active" data-symptom="cooling_weak" onclick="selectSymptom('cooling_weak')"><i class="fa-solid fa-snowflake"></i><span>냉방 약함</span></button>
+                            <button class="symptom-btn" data-symptom="heating_weak" onclick="selectSymptom('heating_weak')"><i class="fa-solid fa-temperature-arrow-up"></i><span>난방 약함</span></button>
+                            <button class="symptom-btn" data-symptom="leak" onclick="selectSymptom('leak')"><i class="fa-solid fa-droplet"></i><span>누수</span></button>
+                            <button class="symptom-btn" data-symptom="noise" onclick="selectSymptom('noise')"><i class="fa-solid fa-volume-high"></i><span>이상 소음</span></button>
+                            <button class="symptom-btn" data-symptom="icing" onclick="selectSymptom('icing')"><i class="fa-solid fa-icicles"></i><span>결빙</span></button>
+                            <button class="symptom-btn" data-symptom="compressor" onclick="selectSymptom('compressor')"><i class="fa-solid fa-gears"></i><span>압축기 이상</span></button>
+                            <button class="symptom-btn" data-symptom="electrical" onclick="selectSymptom('electrical')"><i class="fa-solid fa-bolt"></i><span>전기 이상</span></button>
+                            <button class="symptom-btn" data-symptom="error" onclick="selectSymptom('error')"><i class="fa-solid fa-triangle-exclamation"></i><span>에러 발생</span></button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input id="fieldSite" class="field-input" placeholder="현장명 / 고객명">
+                            <input id="fieldEquipment" class="field-input" placeholder="설비명">
+                            <input id="fieldModel" class="field-input" placeholder="모델명 / 시리얼">
+                            <select id="fieldBrand" class="field-input"><option value="">제조사 선택</option><option>LG</option><option>SAMSUNG</option><option>CARRIER</option><option>TRANE</option><option>기타</option></select>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-gauge-high text-cyan-400 mr-1"></i> 현장 측정값</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">모든 항목이 필수는 아닙니다. 측정한 값만 입력하세요.</p>
+                            </div>
+                            <button onclick="copyFieldToCalculator()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-cyan-300">냉매진단으로 보내기</button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <label class="field-label">흡입압력<input id="fieldSuctionPressure" type="number" step="0.1" class="field-input mt-1" placeholder="bar"></label>
+                            <label class="field-label">토출압력<input id="fieldDischargePressure" type="number" step="0.1" class="field-input mt-1" placeholder="bar"></label>
+                            <label class="field-label">흡입관온도<input id="fieldSuctionTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
+                            <label class="field-label">액관온도<input id="fieldLiquidTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
+                            <label class="field-label">외기온도<input id="fieldAmbientTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
+                            <label class="field-label">실내온도<input id="fieldIndoorTemp" type="number" step="0.1" class="field-input mt-1" placeholder="°C"></label>
+                            <label class="field-label">운전전류<input id="fieldCurrent" type="number" step="0.1" class="field-input mt-1" placeholder="A"></label>
+                            <label class="field-label">에러코드<input id="fieldErrorCode" class="field-input mt-1" placeholder="예: CH05"></label>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <button onclick="runFieldDiagnosis()" class="btn-touch px-5 py-3 rounded-xl bg-emerald-500 text-slate-950 font-black text-sm"><i class="fa-solid fa-play mr-1"></i> 진단 실행</button>
+                            <button onclick="saveFieldWorkLog()" class="btn-touch px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> 작업기록 저장</button>
+                            <label class="btn-touch cursor-pointer px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-bold text-sm">
+                                <i class="fa-solid fa-camera mr-1"></i> 사진 추가
+                                <input id="fieldPhotoInput" type="file" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFieldPhotos(event)">
+                            </label>
+                        </div>
+                        <div id="photoPreview" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4"></div>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-5 space-y-5">
+                    <div id="fieldDiagnosisResult" class="bg-slate-900 border-2 border-emerald-500/20 rounded-2xl p-5 shadow-xl min-h-[280px]">
+                        <div class="text-center py-10 text-slate-500">
+                            <i class="fa-solid fa-clipboard-check text-4xl mb-3"></i>
+                            <p class="text-sm font-bold text-slate-300">진단 결과가 여기에 표시됩니다.</p>
+                            <p class="text-xs mt-1">증상과 측정값을 입력하고 진단 실행을 눌러주세요.</p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <h3 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-list-check text-amber-400 mr-1"></i> 표준 작업 흐름</h3>
+                        <ol class="space-y-2 text-xs text-slate-300">
+                            <li><span class="step-num">1</span> 장비 명판·모델·증상 확인</li>
+                            <li><span class="step-num">2</span> 전원/풍량/열교환기 등 기본 상태 확인</li>
+                            <li><span class="step-num">3</span> 압력·온도·전류 측정</li>
+                            <li><span class="step-num">4</span> 냉매 진단값과 증상 종합</li>
+                            <li><span class="step-num">5</span> 조치 후 재측정 및 기록</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- TAB 1: SUPERHEAT & SUBCOOLING CALCULATOR -->
         <section id="calcTab" class="tab-content space-y-6">
@@ -391,7 +502,7 @@
                                     <td class="p-3 font-sans font-semibold text-slate-400">산출 과냉각도 (Subcooling)</td>
                                     <td id="rptSC" class="p-3 font-black text-cyan-400 text-sm">-- °C</td>
                                     <td class="p-3 font-sans font-semibold text-slate-400">최종 종합 판정</td>
-                                    <td id="rptStatus" class="p-3 font-bold text-emerald-400">양호 (Normal)</td>
+                                    <td id="rptStatus" class="p-3 font-bold text-amber-400">참고 범위 내 / 추가 확인</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -401,7 +512,14 @@
                 <!-- Engineer Notes Field -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-slate-400 uppercase">엔지니어 점검 소견 (Engineer Recommendations)</label>
-                    <textarea id="reportNotes" rows="3" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="특이사항 및 수리 권고 사항을 입력해주세요...">흡입 압력 및 과열도 수치가 권장 범위 내에 안정적으로 유지됨. 시스템 누설 이상 없음.</textarea>
+                    <textarea id="reportNotes" rows="3" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="특이사항 및 수리 권고 사항을 입력해주세요...">현재 입력된 측정값은 참고 범위 내입니다. 제조사 기준 및 현장 조건을 함께 확인하십시오.</textarea>
+                </div>
+
+
+                <!-- Field Photos -->
+                <div id="reportPhotoSection" class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase">현장 사진</label>
+                    <div id="reportPhotoGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
                 </div>
 
                 <!-- Engineer Signature Block -->
@@ -458,6 +576,24 @@
                 </div>
             </div>
 
+        </section>
+
+
+        <!-- TAB: WORK LOG -->
+        <section id="logTab" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col sm:flex-row justify-between gap-3 mb-5">
+                    <div>
+                        <h3 class="text-base font-bold text-white"><i class="fa-solid fa-clock-rotate-left text-cyan-400 mr-2"></i>현장 작업 기록</h3>
+                        <p class="text-xs text-slate-400 mt-1">브라우저의 로컬 저장소에 저장됩니다. 서버 업로드 없이 오프라인에서 확인할 수 있습니다.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportWorkLogs()" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold">JSON 내보내기</button>
+                        <button onclick="clearWorkLogs()" class="px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold">전체 삭제</button>
+                    </div>
+                </div>
+                <div id="workLogList" class="space-y-3"></div>
+            </div>
         </section>
 
     </div>
@@ -1313,6 +1449,360 @@ ${item.fix}
                 toastEl.classList.add('opacity-0', 'pointer-events-none');
             }, 2000);
         }
+
+        /* ================================================================
+           Coollab v3 Field Engineer Layer
+           Priority: 1 calculation safety, 2 symptom diagnosis,
+           3 error DB, 4 workflow, 6 work log, 7 photos, 8 reporting.
+        ================================================================= */
+
+        const SYMPTOM_DATABASE = {
+            cooling_weak: {
+                title: '냉방 약함', icon: 'fa-snowflake',
+                checks: ['필터·실내 열교환기 오염과 풍량을 먼저 확인', '실외 열교환기 오염 및 실외팬 운전 상태 확인', '흡입/토출 압력과 과열도·과냉각도를 함께 확인', '냉매량 판단은 제조사 기준과 누설 점검을 병행']
+            },
+            heating_weak: {
+                title: '난방 약함', icon: 'fa-temperature-arrow-up',
+                checks: ['실내외 팬과 열교환기 상태 확인', '난방 운전 시 압력·온도 조건이 제조사 범위인지 확인', '필터와 풍량, 흡입구 막힘 여부 확인', '4-way valve 및 센서 이상 여부는 모델별 서비스 절차로 확인']
+            },
+            leak: {
+                title: '누수', icon: 'fa-droplet',
+                checks: ['응축수 배수관·드레인팬·배수펌프를 먼저 확인', '열교환기 결빙 흔적과 해빙 후 배수 상태 확인', '배관 단열재 손상 및 결로 여부 확인', '냉매 누설 여부와 물 누수를 구분']
+            },
+            noise: {
+                title: '이상 소음', icon: 'fa-volume-high',
+                checks: ['팬 날개 간섭·베어링·진동을 확인', '압축기 진동 및 고정상태 확인', '배관 접촉/공진 여부 확인', '소음 발생 시점과 운전모드를 기록']
+            },
+            icing: {
+                title: '결빙', icon: 'fa-icicles',
+                checks: ['필터·증발기 오염과 풍량을 확인', '냉매 상태를 압력·과열도와 함께 확인', '팽창장치 및 센서 상태 확인', '해빙 후 동일 조건에서 재측정']
+            },
+            compressor: {
+                title: '압축기 이상', icon: 'fa-gears',
+                checks: ['전원·상간 전압 및 전류를 먼저 확인', '흡입/토출 압력 차이를 확인', '과전류 코드가 있다면 제조사 절차를 우선 적용', '절연저항·권선 측정은 해당 장비 서비스 기준을 따름']
+            },
+            electrical: {
+                title: '전기 이상', icon: 'fa-bolt',
+                checks: ['차단기·전원·단자 체결 상태 확인', '정격전압과 실제 전압을 비교', '운전전류를 명판 정격과 비교', 'PCB/IPM/센서 측정은 모델별 서비스 매뉴얼을 기준으로 수행']
+            },
+            error: {
+                title: '에러 발생', icon: 'fa-triangle-exclamation',
+                checks: ['제조사와 정확한 에러코드를 기록', '에러 발생 시점과 운전모드를 기록', '에러코드 DB에서 해당 모델/코드의 점검 순서를 확인', '조치 후 동일 조건에서 재발 여부 확인']
+            }
+        };
+
+        let v3State = {
+            symptom: 'cooling_weak',
+            photos: [],
+            lastDiagnosis: null,
+            workLogs: JSON.parse(localStorage.getItem('coollab_work_logs') || '[]')
+        };
+
+        function v3Init() {
+            document.querySelectorAll('.symptom-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.symptom === v3State.symptom);
+            });
+            renderWorkLogs();
+            updateReportPhotos();
+            if (document.getElementById('fieldTab')) switchMainTab('fieldTab');
+        }
+
+        function selectSymptom(key) {
+            v3State.symptom = key;
+            document.querySelectorAll('.symptom-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.symptom === key));
+            if (v3State.lastDiagnosis) runFieldDiagnosis();
+        }
+
+        function num(id) {
+            const v = parseFloat(document.getElementById(id)?.value);
+            return Number.isFinite(v) ? v : null;
+        }
+
+        function runFieldDiagnosis() {
+            const symptom = SYMPTOM_DATABASE[v3State.symptom];
+            const sh = calculateFieldSuperheat();
+            const sc = calculateFieldSubcooling();
+            const suction = num('fieldSuctionPressure');
+            const discharge = num('fieldDischargePressure');
+            const ambient = num('fieldAmbientTemp');
+            const current = num('fieldCurrent');
+            const error = (document.getElementById('fieldErrorCode').value || '').trim().toUpperCase();
+
+            const findings = [];
+            let priority = '추가 확인 필요';
+            let tone = 'amber';
+
+            if (sh !== null) {
+                if (sh > 12) findings.push('과열도가 높게 계산되었습니다. 냉매 부족·유량 제한·풍량 상태 등을 순서대로 확인하십시오.');
+                else if (sh < 5) findings.push('과열도가 낮게 계산되었습니다. 액백 위험 가능성을 배제하지 말고 풍량·팽창장치·냉매 상태를 함께 확인하십시오.');
+                else findings.push('과열도는 현재 입력 기준 참고 범위 내입니다.');
+            }
+            if (sc !== null) {
+                if (sc < 3) findings.push('과냉각도가 낮게 계산되었습니다. 냉매량 판단은 누설 여부와 제조사 충전 기준을 함께 확인하십시오.');
+                else if (sc > 10) findings.push('과냉각도가 높은 편입니다. 과충전·응축 조건·측정 위치를 확인하십시오.');
+                else findings.push('과냉각도는 현재 입력 기준 참고 범위 내입니다.');
+            }
+            if (current !== null) findings.push(`운전전류 ${current.toFixed(1)} A: 명판 정격전류와 비교해 과부하 여부를 확인하십시오.`);
+            if (ambient !== null) findings.push(`외기온도 ${ambient.toFixed(1)} °C 조건을 고려하여 압력값을 해석하십시오.`);
+            if (suction !== null && discharge !== null && discharge <= suction) findings.push('입력된 토출압력이 흡입압력보다 높지 않습니다. 측정값·게이지 연결·운전상태를 재확인하십시오.');
+            if (error) {
+                const matches = ERROR_CODE_DATABASE.filter(x => x.code.toUpperCase() === error || x.code.toUpperCase().includes(error));
+                if (matches.length) findings.push(`에러코드 ${error}: 에러코드 DB에서 ${matches.length}건을 찾았습니다. 제조사 절차를 우선 적용하십시오.`);
+                else findings.push(`에러코드 ${error}: 현재 로컬 DB에 일치 항목이 없습니다. 정확한 모델명과 서비스 매뉴얼을 확인하십시오.`);
+            }
+
+            if (v3State.symptom === 'cooling_weak' && sh !== null && sh > 12) { priority = '냉매/유량 계통 우선 확인'; tone = 'rose'; }
+            else if (v3State.symptom === 'icing' && sh !== null && sh < 5) { priority = '풍량·팽창장치 우선 확인'; tone = 'cyan'; }
+            else if (error) { priority = '에러코드 점검 절차 우선'; tone = 'rose'; }
+            else { priority = '기본 점검 → 측정값 교차확인'; tone = 'amber'; }
+
+            v3State.lastDiagnosis = { symptom, sh, sc, suction, discharge, ambient, current, error, priority, findings, at: new Date().toISOString() };
+            renderDiagnosisResult(v3State.lastDiagnosis);
+            syncFieldToReport(v3State.lastDiagnosis);
+            return v3State.lastDiagnosis;
+        }
+
+        function calculateFieldSuperheat() {
+            const p = num('fieldSuctionPressure'), t = num('fieldSuctionTemp');
+            if (p === null || t === null) return null;
+            const ds = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+            const pb = p;
+            if (pb < ds[0].pGaugeBar || pb > ds[ds.length-1].pGaugeBar) return null;
+            let lo = ds[0], hi = ds[ds.length - 1];
+            for (let i=0;i<ds.length-1;i++) if(pb>=ds[i].pGaugeBar && pb<=ds[i+1].pGaugeBar){lo=ds[i];hi=ds[i+1];break;}
+            const sat = linearInterpolate(pb, lo.pGaugeBar, lo.tDew, hi.pGaugeBar, hi.tDew);
+            return t - sat;
+        }
+
+        function calculateFieldSubcooling() {
+            const p = num('fieldDischargePressure'), t = num('fieldLiquidTemp');
+            if (p === null || t === null) return null;
+            const ds = REFRIGERANT_DATABASE[appState.selectedRefrigerant].data;
+            if (p < ds[0].pGaugeBar || p > ds[ds.length-1].pGaugeBar) return null;
+            let lo = ds[0], hi = ds[ds.length - 1];
+            for (let i=0;i<ds.length-1;i++) if(p>=ds[i].pGaugeBar && p<=ds[i+1].pGaugeBar){lo=ds[i];hi=ds[i+1];break;}
+            const sat = linearInterpolate(p, lo.pGaugeBar, lo.tBubble, hi.pGaugeBar, hi.tBubble);
+            return sat - t;
+        }
+
+        function renderDiagnosisResult(d) {
+            const box = document.getElementById('fieldDiagnosisResult');
+            const toneMap = {rose:'border-rose-500/30',cyan:'border-cyan-500/30',amber:'border-amber-500/30'};
+            box.className = `bg-slate-900 border-2 ${toneMap[d.tone] || 'border-amber-500/30'} rounded-2xl p-5 shadow-xl`;
+            box.innerHTML = `
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div><p class="text-[10px] text-slate-500 uppercase">현장진단 결과</p><h3 class="text-lg font-black text-white mt-1"><i class="fa-solid ${d.symptom.icon} text-emerald-400 mr-1"></i>${d.symptom.title}</h3></div>
+                    <span class="text-[10px] px-2 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">참고용</span>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-3 mb-4 border border-slate-800">
+                    <p class="text-[10px] text-slate-500">우선 점검 방향</p><p class="text-sm font-black text-amber-300 mt-1">${escapeHtml(d.priority)}</p>
+                </div>
+                <h4 class="text-xs font-bold text-slate-300 mb-2">측정값 해석</h4>
+                <ul class="space-y-1.5 text-[11px] text-slate-400 mb-4">${d.findings.map(x=>`<li>• ${escapeHtml(x)}</li>`).join('')}</ul>
+                <h4 class="text-xs font-bold text-slate-300 mb-2">권장 점검 순서</h4>
+                <ol class="space-y-1.5 text-[11px] text-slate-400">${d.symptom.checks.map((x,i)=>`<li><span class="text-emerald-400 font-mono mr-1">${i+1}.</span>${escapeHtml(x)}</li>`).join('')}</ol>
+            `;
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+        }
+
+        function copyFieldToCalculator() {
+            const p = num('fieldSuctionPressure'), t = num('fieldSuctionTemp');
+            if (p !== null) document.getElementById('inputPressure').value = p;
+            if (t !== null) document.getElementById('inputPipeTemp').value = t;
+            document.getElementById('pressureUnitSelect').value = 'bar';
+            document.getElementById('tempUnitSelect').value = 'C';
+            appState.pressureUnit='bar'; appState.tempUnit='C';
+            calculateSuperheatSubcooling();
+            switchMainTab('calcTab');
+            showToast('현장 측정값을 냉매진단으로 전달했습니다.');
+        }
+
+        function syncFieldToReport(d) {
+            const site = document.getElementById('fieldSite').value || '현장 미입력';
+            const eq = document.getElementById('fieldEquipment').value || '설비 미입력';
+            const model = document.getElementById('fieldModel').value || '';
+            document.getElementById('reportSiteName').value = site;
+            document.getElementById('reportEquipmentName').value = eq;
+            document.getElementById('reportEquipmentModel').value = `${model}${model ? ' / ' : ''}사용냉매: ${appState.selectedRefrigerant}`;
+            document.getElementById('reportNotes').value = `증상: ${d.symptom.title}\n우선 점검 방향: ${d.priority}\n${d.findings.join('\n')}\n\n주의: 본 결과는 측정값 기반 참고용이며 제조사 기준과 현장 안전 절차를 우선하십시오.`;
+            document.getElementById('rptStatus').innerText = d.priority;
+            document.getElementById('rptStatus').className = 'p-3 font-bold text-amber-400';
+        }
+
+        async function handleFieldPhotos(event) {
+            const files = Array.from(event.target.files || []).slice(0, 6 - v3State.photos.length);
+            for (const file of files) {
+                try { v3State.photos.push(await resizeImageToDataUrl(file, 1000, 0.68)); }
+                catch(e) { console.warn(e); }
+            }
+            updatePhotoPreview();
+            updateReportPhotos();
+            event.target.value = '';
+        }
+
+        function resizeImageToDataUrl(file, maxSize, quality) {
+            return new Promise((resolve,reject)=>{
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = e => { img.onload=()=>{ const scale=Math.min(1,maxSize/Math.max(img.width,img.height)); const c=document.createElement('canvas'); c.width=Math.round(img.width*scale); c.height=Math.round(img.height*scale); c.getContext('2d').drawImage(img,0,0,c.width,c.height); resolve(c.toDataURL('image/jpeg',quality)); }; img.onerror=reject; img.src=e.target.result; };
+                reader.onerror=reject; reader.readAsDataURL(file);
+            });
+        }
+
+        function updatePhotoPreview() {
+            const box=document.getElementById('photoPreview'); box.innerHTML='';
+            v3State.photos.forEach((src,i)=>{
+                box.insertAdjacentHTML('beforeend', `<div class="photo-thumb"><img src="${src}" alt="현장사진 ${i+1}"><button class="photo-remove" onclick="removeFieldPhoto(${i})">&times;</button></div>`);
+            });
+        }
+        function removeFieldPhoto(i) { v3State.photos.splice(i,1); updatePhotoPreview(); updateReportPhotos(); }
+        function updateReportPhotos() {
+            const box=document.getElementById('reportPhotoGrid'); if(!box)return;
+            box.innerHTML=v3State.photos.length ? v3State.photos.map((src,i)=>`<div class="photo-thumb"><img src="${src}" alt="현장사진 ${i+1}"></div>`).join('') : '<p class="text-xs text-slate-500 col-span-4">현장 사진을 추가하면 보고서에 포함됩니다.</p>';
+        }
+
+        function saveFieldWorkLog() {
+            if (!v3State.lastDiagnosis) runFieldDiagnosis();
+            const d=v3State.lastDiagnosis;
+            const record={
+                id: 'CL-'+Date.now(), date:new Date().toISOString(),
+                site:document.getElementById('fieldSite').value||'현장 미입력',
+                equipment:document.getElementById('fieldEquipment').value||'설비 미입력',
+                model:document.getElementById('fieldModel').value||'',
+                brand:document.getElementById('fieldBrand').value||'',
+                refrigerant:appState.selectedRefrigerant,
+                symptom:d.symptom.title, priority:d.priority,
+                sh:d.sh, sc:d.sc, error:d.error||'', photoCount:v3State.photos.length,
+                notes:document.getElementById('reportNotes').value
+            };
+            v3State.workLogs.unshift(record); v3State.workLogs=v3State.workLogs.slice(0,100);
+            localStorage.setItem('coollab_work_logs',JSON.stringify(v3State.workLogs));
+            renderWorkLogs(); showToast('현장 작업 기록이 저장되었습니다.');
+        }
+
+        function renderWorkLogs() {
+            const box=document.getElementById('workLogList'); if(!box)return;
+            if(!v3State.workLogs.length){box.innerHTML='<div class="text-center py-12 text-slate-500"><i class="fa-solid fa-folder-open text-3xl mb-2"></i><p class="text-sm">저장된 작업 기록이 없습니다.</p></div>';return;}
+            box.innerHTML=v3State.workLogs.map(r=>`
+                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+                    <div class="flex flex-col sm:flex-row justify-between gap-2">
+                        <div><p class="text-xs text-slate-500">${new Date(r.date).toLocaleString('ko-KR')}</p><h4 class="font-bold text-white mt-1">${escapeHtml(r.site)} · ${escapeHtml(r.equipment)}</h4></div>
+                        <span class="text-[10px] self-start px-2 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">${escapeHtml(r.priority)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3 text-[11px]">
+                        <div><span class="text-slate-500">증상</span><br>${escapeHtml(r.symptom)}</div>
+                        <div><span class="text-slate-500">냉매</span><br>${escapeHtml(r.refrigerant)}</div>
+                        <div><span class="text-slate-500">SH</span><br>${r.sh===null?'--':Number(r.sh).toFixed(1)+' °C'}</div>
+                        <div><span class="text-slate-500">SC</span><br>${r.sc===null?'--':Number(r.sc).toFixed(1)+' °C'}</div>
+                        <div><span class="text-slate-500">사진</span><br>${r.photoCount||0}장</div>
+                    </div>
+                    <div class="mt-3 flex gap-2"><button onclick="loadWorkLog('${r.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-bold">불러오기</button><button onclick="deleteWorkLog('${r.id}')" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-300 text-xs font-bold">삭제</button></div>
+                </div>`).join('');
+        }
+
+        function loadWorkLog(id) {
+            const r=v3State.workLogs.find(x=>x.id===id); if(!r)return;
+            document.getElementById('fieldSite').value=r.site; document.getElementById('fieldEquipment').value=r.equipment;
+            document.getElementById('fieldModel').value=r.model||''; document.getElementById('fieldBrand').value=r.brand||'';
+            document.getElementById('reportNotes').value=r.notes||'';
+            const key=Object.keys(SYMPTOM_DATABASE).find(k=>SYMPTOM_DATABASE[k].title===r.symptom); if(key)selectSymptom(key);
+            switchMainTab('fieldTab'); showToast('작업 기록을 불러왔습니다. 측정값은 다시 확인해 주세요.');
+        }
+        function deleteWorkLog(id) {
+            v3State.workLogs=v3State.workLogs.filter(x=>x.id!==id); localStorage.setItem('coollab_work_logs',JSON.stringify(v3State.workLogs)); renderWorkLogs(); showToast('작업 기록을 삭제했습니다.');
+        }
+        function clearWorkLogs() {
+            if(!confirm('저장된 작업 기록을 모두 삭제할까요?'))return;
+            v3State.workLogs=[]; localStorage.removeItem('coollab_work_logs'); renderWorkLogs();
+        }
+        function exportWorkLogs() {
+            const blob=new Blob([JSON.stringify(v3State.workLogs,null,2)],{type:'application/json'});
+            const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`coollab-worklogs-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+        }
+
+        function syncReportFromFieldIfNeeded() {
+            if(v3State.lastDiagnosis) syncFieldToReport(v3State.lastDiagnosis);
+        }
+
+        // Safer report/Kakao summary: no automatic "no leak" or unconditional "normal" claim.
+        function shareKakaoReport() {
+            const siteName = document.getElementById('reportSiteName').value || '현장 미입력';
+            const equipmentName = document.getElementById('reportEquipmentName').value || '설비 미입력';
+            const refName = appState.selectedRefrigerant;
+            const pressureVal = document.getElementById('inputPressure').value + ' ' + appState.pressureUnit;
+            const tempVal = document.getElementById('inputPipeTemp').value + ' °' + appState.tempUnit;
+            const shVal = document.getElementById('displaySuperheat').innerText;
+            const scVal = document.getElementById('displaySubcooling').innerText;
+            const statusText = document.getElementById('rptStatus').innerText;
+            const notes = document.getElementById('reportNotes').value;
+            const summaryText =
+`[Coollab 현장 점검]
+■ 현장: ${siteName}
+■ 설비: ${equipmentName}
+------------------
+• 사용 냉매: ${refName}
+• 게이지 압력: ${pressureVal}
+• 실측 배관온도: ${tempVal}
+• 과열도(SH): ${shVal}
+• 과냉각도(SC): ${scVal}
+------------------
+■ 현재 해석: ${statusText}
+■ 소견: ${notes}`;
+            document.getElementById('kakaoPreviewContent').innerText = summaryText;
+            openModal('kakaoModal');
+        }
+
+        // Wrap the existing calculator to keep the original engine while adding safety messaging.
+        const _coollabBaseCalc = calculateSuperheatSubcooling;
+        calculateSuperheatSubcooling = function() {
+            const pRaw=parseFloat(document.getElementById('inputPressure')?.value);
+            const ds=REFRIGERANT_DATABASE[appState.selectedRefrigerant]?.data||[];
+            const pBar=Number.isFinite(pRaw) ? unitConverter.pressureToBar(pRaw, appState.pressureUnit) : NaN;
+            const min=ds[0]?.pGaugeBar, max=ds[ds.length-1]?.pGaugeBar;
+            const guide=document.getElementById('diagnosticGuideText');
+            if(Number.isFinite(pBar) && (pBar<min || pBar>max)) {
+                ['displaySatDew','displaySatBubble','displaySuperheat','displaySubcooling'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText='범위 밖';});
+                if(guide) guide.innerHTML='<span class="text-amber-300 font-bold">⚠ 입력 압력이 현재 로컬 P-T 데이터 범위를 벗어났습니다.</span> 데이터 끝점으로 강제 계산하지 않습니다. 적정 P-T 데이터 또는 제조사 자료를 확인하십시오.';
+                const status=document.getElementById('rptStatus');
+                if(status){status.innerText='계산 범위 밖 / 재측정 필요';status.className='p-3 font-bold text-amber-400';}
+                return;
+            }
+            _coollabBaseCalc();
+            const status=document.getElementById('rptStatus');
+            if(status && !v3State.lastDiagnosis) { status.innerText='참고 범위 내 / 추가 확인'; status.className='p-3 font-bold text-amber-400'; }
+        };
+
+        // Improve error-code cards with a model/safety note and clickable code search.
+        const _coollabBaseRenderErrors = renderErrorCodes;
+        renderErrorCodes = function(filteredList = ERROR_CODE_DATABASE) {
+            const container = document.getElementById('errorCodeList'); if(!container)return;
+            container.innerHTML='';
+            if(!filteredList.length){container.innerHTML='<p class="col-span-2 text-center text-xs text-slate-500 py-8">검색어와 일치하는 에러코드가 없습니다.</p>';return;}
+            filteredList.forEach(item=>{
+                const card=document.createElement('div');
+                card.className='bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-amber-500/30 transition';
+                card.innerHTML=`
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">${escapeHtml(item.brand)}</span>
+                        <button onclick="document.getElementById('fieldErrorCode').value='${escapeHtml(item.code)}';selectSymptom('error');switchMainTab('fieldTab');" class="text-sm font-black num-font text-rose-400 hover:text-rose-300">${escapeHtml(item.code)}</button>
+                    </div>
+                    <h4 class="text-xs font-bold text-white">${escapeHtml(item.name)}</h4>
+                    <p class="text-[11px] text-slate-400"><strong>추정 원인:</strong> ${escapeHtml(item.cause)}</p>
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 text-[11px] text-emerald-300 whitespace-pre-line font-mono"><i class="fa-solid fa-wrench text-emerald-500"></i> 현장 조치 가이드:\n${escapeHtml(item.fix)}</div>
+                    <p class="text-[10px] text-amber-300/80">※ 모델별 코드 정의와 측정값이 다를 수 있으므로 제조사 서비스 절차를 우선 적용하세요.</p>`;
+                container.appendChild(card);
+            });
+        };
+
+        // Re-run initialization after the v3 layer has been parsed.
+        const _coollabOriginalOnload = window.onload;
+        window.onload = function() {
+            if (_coollabOriginalOnload) _coollabOriginalOnload();
+            v3Init();
+        };
     </script>
 </body>
 </html>
