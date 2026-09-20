@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coollab PRO v5.1 - HVAC 현장 엔지니어 도구</title>
+    <title>Coollab PRO v6.1 - HVAC 현장 엔지니어 도구</title>
     
     <!-- Tailwind CSS Engine -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -63,6 +63,21 @@
         .photo-thumb img { width:100%; height:100%; object-fit:cover; }
         .photo-remove { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:999px; background:rgba(15,23,42,.85); color:#fda4af; border:1px solid #475569; }
         @media print { .no-print, nav, header { display:none !important; } }
+        /* v6.1: Make low/high side visually obvious without relying on color alone. */
+        .manifold-step.low-side { border-color:rgba(59,130,246,.65) !important; box-shadow:inset 0 0 0 1px rgba(59,130,246,.08); }
+        .manifold-step.high-side { border-color:rgba(244,63,94,.65) !important; box-shadow:inset 0 0 0 1px rgba(244,63,94,.08); }
+        .manifold-side-label { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .45rem; border-radius:.45rem; font-size:.58rem; font-weight:800; letter-spacing:.05em; font-family:'JetBrains Mono',monospace; }
+        .manifold-side-label.low { color:#93c5fd; background:rgba(59,130,246,.10); border:1px solid rgba(59,130,246,.22); }
+        .manifold-side-label.high { color:#fda4af; background:rgba(244,63,94,.10); border:1px solid rgba(244,63,94,.22); }
+        .manifold-step.low-side .manifold-input:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(59,130,246,.12); }
+        .manifold-step.high-side .manifold-input:focus { border-color:#fb7185; box-shadow:0 0 0 3px rgba(244,63,94,.12); }
+        .manifold-step.low-side .step-num { background:#1d4ed8; color:#dbeafe; }
+        .manifold-step.high-side .step-num { background:#be123c; color:#ffe4e6; }
+        .manifold-step.low-side .fieldPressureUnitLabel, .manifold-step.low-side .fieldTempUnitLabel { color:#93c5fd !important; }
+        .manifold-step.high-side .fieldPressureUnitLabel, .manifold-step.high-side .fieldTempUnitLabel { color:#fda4af !important; }
+        .manifold-step .measurement-focus { transition:.15s; }
+        .manifold-step.measurement-current { box-shadow:0 0 0 2px rgba(16,185,129,.45), inset 0 0 0 1px rgba(16,185,129,.12); }
+        .manifold-step.measurement-complete { opacity:.96; }
         .manifold-step { position:relative; }
         /* Measurement order is explicit in the step number; the grid reflows for each screen size. */
         @media (min-width: 640px) { .manifold-step:nth-child(1){grid-column:1}.manifold-step:nth-child(2){grid-column:2}.manifold-step:nth-child(3){grid-column:1}.manifold-step:nth-child(4){grid-column:2} }
@@ -72,6 +87,19 @@
         .manifold-input::placeholder { color:#475569; }
         .manifold-result { min-height:2.5rem; }
         .unit-chip { background:#020617; border:1px solid #334155; color:#67e8f9; border-radius:.65rem; padding:.35rem .5rem; font:700 .68rem 'JetBrains Mono',monospace; }
+        /* v6.1: The top unit switch is intentionally compact on mobile.
+           Show only the actual units, not the longer Metric/Imperial label. */
+        .unit-toggle { min-width:84px; white-space:nowrap; }
+        .report-header { width:100%; }
+        .report-meta-row { display:flex; align-items:center; flex-wrap:wrap; gap:.35rem .6rem; }
+        .report-meta-divider { color:#475569; }
+        @media (max-width: 639px) {
+            .unit-toggle { min-width:76px; padding-left:.55rem !important; padding-right:.55rem !important; }
+            .report-meta-row { font-size:10px; gap:.25rem .45rem; }
+        }
+        @media print {
+            .report-meta-row { font-size:9pt; }
+        }
         .print-report-meta { display:none; }
         @media print {
             @page { size:A4; margin:12mm; }
@@ -99,7 +127,7 @@
                 <div>
                     <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white flex items-center gap-2">
                         Coollab <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">PRO</span>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">v5.1</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">v6.1</span>
                     </h1>
                     <p class="text-xs text-slate-400 hidden sm:block">현장 진단 · 측정 · 기록 · 보고 솔루션</p>
                 </div>
@@ -108,9 +136,9 @@
             <!-- Header Quick Controls -->
             <div class="flex items-center gap-2">
                 <!-- Metric / Imperial Unit Switcher Button -->
-                <button id="unitToggleBtn" onclick="toggleUnitSystem()" class="btn-touch px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono font-semibold text-emerald-400 flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                    <span id="unitSystemText">Metric (bar, °C)</span>
+                <button id="unitToggleBtn" onclick="toggleUnitSystem()" class="unit-toggle btn-touch px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] sm:text-xs font-mono font-bold text-emerald-400 flex items-center justify-center gap-1.5 transition" aria-label="단위 변경" title="단위 변경">
+                    <i class="fa-solid fa-arrows-rotate text-[10px] sm:text-xs"></i>
+                    <span id="unitSystemText">bar · °C</span>
                 </button>
                 <!-- Help Modal Trigger -->
                 <button onclick="openModal('infoModal')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition" title="사용 가이드">
@@ -176,20 +204,20 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="manifold-step bg-slate-950/80 border border-cyan-500/20 rounded-2xl p-3">
-                                <div class="flex items-center gap-2 mb-2"><span class="step-num">1</span><div><p class="text-xs font-black text-white">흡입압력 · 저압측</p><p class="text-[10px] text-slate-500">Suction / Low Side</p></div></div>
+                            <div class="manifold-step low-side bg-slate-950/80 border rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">1</span><div><p class="text-xs font-black text-white">흡입압력 · 저압측</p><div class="flex items-center gap-1 mt-1"><span class="manifold-side-label low"><i class="fa-solid fa-arrow-down"></i> LOW SIDE · 저압</span><span class="text-[10px] text-slate-500">Suction</span></div></div></div>
                                 <div class="relative"><input id="fieldSuctionPressure" type="number" step="0.01" inputmode="decimal" class="manifold-input pr-20" placeholder="0.00" data-next="fieldSuctionTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-cyan-300 fieldPressureUnitLabel">bar</span></div>
                             </div>
-                            <div class="manifold-step bg-slate-950/80 border border-emerald-500/20 rounded-2xl p-3">
-                                <div class="flex items-center gap-2 mb-2"><span class="step-num">2</span><div><p class="text-xs font-black text-white">흡입관온도 · 저압측</p><p class="text-[10px] text-slate-500">Suction Line Temperature</p></div></div>
+                            <div class="manifold-step low-side bg-slate-950/80 border rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">2</span><div><p class="text-xs font-black text-white">흡입관온도 · 저압측</p><div class="flex items-center gap-1 mt-1"><span class="manifold-side-label low"><i class="fa-solid fa-arrow-down"></i> LOW SIDE · 저압</span></div></div></div>
                                 <div class="relative"><input id="fieldSuctionTemp" type="number" step="0.1" inputmode="decimal" class="manifold-input pr-20" placeholder="0.0" data-next="fieldDischargePressure"><span class="absolute right-3 top-3.5 text-xs font-mono text-emerald-300 fieldTempUnitLabel">°C</span></div>
                             </div>
-                            <div class="manifold-step bg-slate-950/80 border border-rose-500/20 rounded-2xl p-3">
-                                <div class="flex items-center gap-2 mb-2"><span class="step-num">3</span><div><p class="text-xs font-black text-white">토출압력 · 고압측</p><p class="text-[10px] text-slate-500">Discharge / High Side</p></div></div>
+                            <div class="manifold-step high-side bg-slate-950/80 border rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">3</span><div><p class="text-xs font-black text-white">토출압력 · 고압측</p><div class="flex items-center gap-1 mt-1"><span class="manifold-side-label high"><i class="fa-solid fa-arrow-up"></i> HIGH SIDE · 고압</span><span class="text-[10px] text-slate-500">Discharge</span></div></div></div>
                                 <div class="relative"><input id="fieldDischargePressure" type="number" step="0.01" inputmode="decimal" class="manifold-input pr-20" placeholder="0.00" data-next="fieldLiquidTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-cyan-300 fieldPressureUnitLabel">bar</span></div>
                             </div>
-                            <div class="manifold-step bg-slate-950/80 border border-amber-500/20 rounded-2xl p-3">
-                                <div class="flex items-center gap-2 mb-2"><span class="step-num">4</span><div><p class="text-xs font-black text-white">액관온도 · 고압측</p><p class="text-[10px] text-slate-500">Liquid Line Temperature</p></div></div>
+                            <div class="manifold-step high-side bg-slate-950/80 border rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2"><span class="step-num">4</span><div><p class="text-xs font-black text-white">액관온도 · 고압측</p><div class="flex items-center gap-1 mt-1"><span class="manifold-side-label high"><i class="fa-solid fa-arrow-up"></i> HIGH SIDE · 고압</span></div></div></div>
                                 <div class="relative"><input id="fieldLiquidTemp" type="number" step="0.1" inputmode="decimal" class="manifold-input pr-20" placeholder="0.0" data-next="fieldAmbientTemp"><span class="absolute right-3 top-3.5 text-xs font-mono text-emerald-300 fieldTempUnitLabel">°C</span></div>
                             </div>
                         </div>
@@ -282,7 +310,7 @@
 
                         <!-- Pressure Value Input -->
                         <div class="relative flex items-center">
-                            <input type="number" id="inputPressure" step="0.1" value="4.5" oninput="calculateSuperheatSubcooling()" 
+                            <input type="number" id="inputPressure" step="0.1" value="" oninput="calculateSuperheatSubcooling()" 
                                 class="w-full bg-slate-950 border-2 border-slate-800 focus:border-cyan-400 rounded-xl px-4 py-3.5 text-2xl sm:text-3xl num-font font-bold text-white focus:outline-none transition shadow-inner" placeholder="0.0">
                             <!-- Quick Adjust Buttons -->
                             <div class="absolute right-2 flex gap-1">
@@ -310,7 +338,7 @@
 
                         <!-- Pipe Temp Value Input -->
                         <div class="relative flex items-center">
-                            <input type="number" id="inputPipeTemp" step="0.1" value="8.0" oninput="calculateSuperheatSubcooling()" 
+                            <input type="number" id="inputPipeTemp" step="0.1" value="" oninput="calculateSuperheatSubcooling()" 
                                 class="w-full bg-slate-950 border-2 border-slate-800 focus:border-emerald-400 rounded-xl px-4 py-3.5 text-2xl sm:text-3xl num-font font-bold text-white focus:outline-none transition shadow-inner" placeholder="0.0">
                             <!-- Quick Adjust Buttons -->
                             <div class="absolute right-2 flex gap-1">
@@ -341,7 +369,7 @@
                     <div class="bg-slate-900 border-2 border-emerald-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">흡입 가스 과열도 (Superheat)</span>
-                            <span id="shBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">정상 범위</span>
+                            <span id="shBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">입력 대기</span>
                         </div>
                         <div class="flex items-baseline justify-between my-1">
                             <div class="text-4xl sm:text-5xl font-black num-font text-emerald-400 tracking-tight" id="displaySuperheat">--</div>
@@ -362,7 +390,7 @@
                     <div class="bg-slate-900 border-2 border-cyan-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">액관 과냉각도 (Subcooling)</span>
-                            <span id="scBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">정상 범위</span>
+                            <span id="scBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">입력 대기</span>
                         </div>
                         <div class="flex items-baseline justify-between my-1">
                             <div class="text-4xl sm:text-5xl font-black num-font text-cyan-400 tracking-tight" id="displaySubcooling">--</div>
@@ -468,17 +496,17 @@
             <div class="print-card bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-slate-200">
                 
                 <!-- Report Header -->
-                <div class="flex justify-between items-start border-b border-slate-800 pb-5">
+                <div class="report-header border-b border-slate-800 pb-5">
                     <div>
                         <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                             <i class="fa-solid fa-file-shield text-emerald-400 no-print"></i>
-                            Coollab 냉동공조 설비 점검 보고서
+                            현장 점검 보고서
                         </h2>
-                        <p class="text-xs text-slate-400 mt-1">Coollab HVAC Equipment Maintenance & Field Inspection Report</p>
-                    </div>
-                    <div class="text-right font-mono text-xs text-slate-400">
-                        <p>발행일: <span id="reportDate" class="text-slate-200 font-bold">2026-09-19</span></p>
-                        <p>문서번호: <span id="reportDocNumber" class="text-slate-200 font-bold">COOLLAB-</span></p>
+                        <div class="report-meta-row mt-2 font-mono text-[11px] text-slate-400">
+                            <span>발행일: <strong id="reportDate" class="text-slate-200">2026-09-19</strong></span>
+                            <span class="report-meta-divider">·</span>
+                            <span>문서번호: <strong id="reportDocNumber" class="text-slate-200">COOLLAB-</strong></span>
+                        </div>
                     </div>
                 </div>
 
@@ -532,7 +560,7 @@
                 </div>
 
                 <div class="print-report-meta items-center justify-between gap-4 border-b border-slate-300 pb-3 mb-4 text-[9pt]">
-                    <div><strong>Coollab PRO v5.1</strong><br>HVAC 현장 점검 보고서</div>
+                    <div><strong>Coollab PRO v6.1</strong><br>HVAC 현장 점검 보고서</div>
                     <div class="text-right">문서번호: <span id="printReportDocNumber">-</span><br>발행일: <span id="printReportDate">-</span></div>
                 </div>
 
@@ -702,10 +730,10 @@
                 <button onclick="closeModal('infoModal')" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
             <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
-                <p><strong class="text-emerald-400">1. 과열도 (Superheat):</strong> 증발기 출구 흡입 배관 온도 - 해당 압력의 포화 기체(Dew) 온도 (권장: 5~8°C)</p>
-                <p><strong class="text-cyan-400">2. 과냉각도 (Subcooling):</strong> 응축기 출구 액관 압력의 포화 액체(Bubble) 온도 - 실측 액관 온도 (권장: 5~7°C)</p>
+                <p><strong class="text-emerald-400">1. 과열도 (Superheat):</strong> 증발기 출구 흡입 배관 온도 - 해당 압력의 포화 기체(Dew) 온도 (참고 범위 예시: 5~8°C)</p>
+                <p><strong class="text-cyan-400">2. 과냉각도 (Subcooling):</strong> 응축기 출구 액관 압력의 포화 액체(Bubble) 온도 - 실측 액관 온도 (참고 범위 예시: 5~7°C)</p>
                 <p><strong class="text-amber-400">3. 선형 보간 엔진:</strong> 내장된 냉매 P-T 데이터와 선형 보간을 사용합니다. 실제 정비 판단은 제조사 자료와 현장 기준을 우선하십시오.</p>
-                <p><strong class="text-slate-200">4. 오프라인 퍼스트:</strong> 지하 기계실 등 신호가 약한 현장에서도 상시 구동됩니다.</p>
+                <p><strong class="text-slate-200">4. 현장 사용 중심:</strong> 저신호 환경을 고려한 단순한 입력·계산 흐름을 제공합니다. 완전 오프라인 사용 여부는 배포 환경의 외부 리소스 로딩 조건을 확인하십시오.</p>
             </div>
             <button onclick="closeModal('infoModal')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition">
                 확인
@@ -929,21 +957,21 @@
                 code: 'CH05',
                 name: '실내외기 통신 에러',
                 cause: '실내기와 실외기간 통신 선로 이상 또는 전원 전압 불균형',
-                fix: '1. 실내외기 연결 통신선 결선 상태 점검 (CN_COM)\n2. 통신 전압 (DC 10~20V) 메인보드 출력 측정\n3. 노이즈 차단용 페라이트 코어 설치 확인'
+                fix: '1. 실내외기 연결 통신선 결선 상태 점검 (CN_COM)\n2. 통신 전압 메인보드 출력 측정\n※ 측정 전압 범위는 모델별 서비스 매뉴얼 기준 확인\n3. 노이즈 차단용 페라이트 코어 설치 확인'
             },
             {
                 brand: 'LG',
                 code: 'CH21',
                 name: '인버터 압축기 과전류 (DC Peak)',
                 cause: '압축기 구동 IPM 모듈 과전류 감지 또는 압축기 구동 구속',
-                fix: '1. 실외기 팬 모터 동작 상태 및 열교환기 막힘 확인\n2. 인버터 IPM 방열판 구리스 결착 상태 점검\n3. Comp 권선 저항 (U-V-W 균일성 0.5~2.0Ω) 측정'
+                fix: '1. 실외기 팬 모터 동작 상태 및 열교환기 막힘 확인\n2. 인버터 IPM 방열판 구리스 결착 상태 점검\n3. Comp 권선 저항 (U-V-W 균일성) 측정\n※ 저항값은 모델별 서비스 매뉴얼 기준 확인'
             },
             {
                 brand: 'SAMSUNG',
                 code: 'E101',
                 name: '실내기 통신 에러',
                 cause: '실내기와 실외기 간 통신 수신 불능',
-                fix: '1. 통신선 V1, V2 단자 전압 측정 (DC 0.5V~3V 변동)\n2. 실내기/실외기 PBA 통신 IC 단자 냉땜 확인'
+                fix: '1. 통신선 V1, V2 단자 전압 측정\n※ 정상 전압 범위는 모델별 서비스 매뉴얼 기준 확인\n2. 실내기/실외기 PBA 통신 IC 단자 냉땜 확인'
             },
             {
                 brand: 'SAMSUNG',
@@ -1011,7 +1039,15 @@
          */
         window.onload = function() {
             renderRefrigerantButtons();
+            // v6.1: Start with no assumed field measurement. Results stay in a neutral waiting state.
+            const pressureInput = document.getElementById('inputPressure');
+            const pipeTempInput = document.getElementById('inputPipeTemp');
+            if (pressureInput) pressureInput.value = '';
+            if (pipeTempInput) pipeTempInput.value = '';
+            const shBadge = document.getElementById('shBadge');
+            if (shBadge) { shBadge.innerText = '입력 대기'; shBadge.className = 'text-xs font-extrabold px-2 py-0.5 rounded-md bg-slate-500/20 text-slate-400 border border-slate-500/30'; }
             calculateSuperheatSubcooling();
+            updateManifoldMeasurementState();
             initPtChart();
             renderPtTable();
             renderErrorCodes();
@@ -1152,7 +1188,7 @@
         function syncAllUnitUI() {
             const pLabel = appState.pressureUnit === 'kgf/cm2' ? 'kgf/cm²' : appState.pressureUnit;
             document.getElementById('unitSystemText').innerText =
-                `${appState.unitSystem === 'IMPERIAL' ? 'Imperial' : 'Metric'} (${pLabel}, °${appState.tempUnit})`;
+                `${pLabel} · °${appState.tempUnit}`;
             document.getElementById('pressureUnitSelect').value = appState.pressureUnit;
             document.getElementById('tempUnitSelect').value = appState.tempUnit;
             document.querySelectorAll('.tempUnitLabel').forEach(el => el.innerText = '°' + appState.tempUnit);
@@ -1585,7 +1621,7 @@ ${item.fix}
         }
 
         /* ================================================================
-           Coollab v5.1 Field Engineer Layer
+           Coollab v6.1 Field Engineer Layer
            Priority: calculation safety, field diagnosis, work log, photos, and reporting.
            Keep this layer small: field workflow state lives in one object.
         ================================================================= */
@@ -2011,7 +2047,24 @@ ${item.fix}
             updateManifoldPreview();
         }
 
+        // v6.1: Highlight the next field to measure and mark completed measurements.
+        function updateManifoldMeasurementState() {
+            const ids = ['fieldSuctionPressure','fieldSuctionTemp','fieldDischargePressure','fieldLiquidTemp'];
+            let firstEmpty = null;
+            ids.forEach(id => {
+                const input = document.getElementById(id);
+                const card = input?.closest('.manifold-step');
+                if (!input || !card) return;
+                const hasValue = Number.isFinite(parseFloat(input.value));
+                card.classList.toggle('measurement-complete', hasValue);
+                card.classList.remove('measurement-current');
+                if (!hasValue && firstEmpty === null) firstEmpty = card;
+            });
+            if (firstEmpty) firstEmpty.classList.add('measurement-current');
+        }
+
         function updateManifoldPreview() {
+            updateManifoldMeasurementState();
             const sh = calculateFieldSuperheat();
             const sc = calculateFieldSubcooling();
             const shEl = document.getElementById('manifoldShResult');
@@ -2039,7 +2092,7 @@ ${item.fix}
             }
         }
 
-        // Initialize the Coollab v5.1 field layer after the base app is loaded.
+        // Initialize the Coollab v6.1 field layer after the base app is loaded.
         const _coollabBaseOnload = window.onload;
         window.onload = function() {
             if (_coollabBaseOnload) _coollabBaseOnload();
