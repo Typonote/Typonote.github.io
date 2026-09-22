@@ -617,7 +617,7 @@
                         <h3 class="text-base font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-database text-amber-400"></i> 제조사 에러코드 공식 디렉터리
                         </h3>
-                        <p class="text-xs text-slate-400">삼성전자서비스 공식 자료를 바탕으로 점검코드별 증상과 점검 절차를 Coollab 안에서 요약 제공합니다.</p>
+                        <p class="text-xs text-slate-400">삼성전자서비스·LG전자·캐리어 공식 자료 및 제공된 제조사별 자료를 바탕으로 점검코드의 증상과 점검 절차를 Coollab 안에서 요약 제공합니다.</p>
                     </div>
 
                 </div>
@@ -631,7 +631,7 @@
                     <div class="sm:col-span-3">
                         <select id="errorBrandSelect" onchange="filterErrorCodes()" class="w-full bg-slate-950 border border-slate-800 text-xs text-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500">
                             <option value="ALL">전체 제조사</option>
-                            <option value="LG">LG 전자</option>
+                            <option value="LG">LG전자</option>
                             <option value="SAMSUNG">삼성전자</option>
                             <option value="CARRIER">캐리어</option>
                             <option value="TRANE">트레인</option>
@@ -645,7 +645,7 @@
                     </div>
                     <div class="sm:col-span-6">
                         <div class="relative">
-                            <input type="text" id="errorSearchInput" oninput="filterErrorCodes()" placeholder="점검코드, 증상, 적용범위 검색 (예: E101, 통신)" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="errorSearchInput" oninput="filterErrorCodes()" placeholder="점검코드, 증상, 적용범위 검색 (예: E101, CH05, E5, 통신)" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-emerald-500">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
                         </div>
                     </div>
@@ -1347,7 +1347,1113 @@
             return result;
         }
 
+
+        const LG_ERROR_ROWS = [
+            {
+                        "code": "CH01",
+                        "category": "실내기",
+                        "symptom": "실내기 실내 실온 온도센서 불량",
+                        "detail": "온도센서 단락/개방, 체결 불량",
+                        "procedure": "전원 리셋 후 재가동. 지속 발생 시 센서 점검 및 교체 필요.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH02",
+                        "category": "실내기",
+                        "symptom": "실내기 배관 입구 온도센서 불량",
+                        "detail": "입구 배관 센서 단락/개방, 저항 이상",
+                        "procedure": "센서 접촉 상태 확인, 센서 저항 측정 후 교체.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH03",
+                        "category": "실내기",
+                        "symptom": "유선 리모컨 통신 불량",
+                        "detail": "리모컨과 실내기 간 통신 신호 미수신",
+                        "procedure": "리모컨 배선 연결 상태 및 단자 체결 확인.",
+                        "actionLevel": "자가점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH04",
+                        "category": "실내기",
+                        "symptom": "드레인 펌프 / 만수 감지 에러",
+                        "detail": "배수관 막힘, 드레인 펌프 고장으로 인한 응축수 수위 상승",
+                        "procedure": "배수관 막힘 청소, 펌프 및 플로트 스위치 동작 확인.",
+                        "actionLevel": "자가/점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH06",
+                        "category": "실내기",
+                        "symptom": "실내기 배관 출구 온도센서 불량",
+                        "detail": "출구 배관 센서 단락/개방, 커넥터 이탈",
+                        "procedure": "단자 체결 상태 확인 및 센서 점검.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH08",
+                        "category": "실내기",
+                        "symptom": "실내기 LEV(전자개폐밸브) 불량",
+                        "detail": "LEV 코일 단선 또는 이물질로 인한 동작 불량",
+                        "procedure": "LEV 코일 및 실내기 메인보드 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH09",
+                        "category": "실내기",
+                        "symptom": "실내기 EEPROM 에러",
+                        "detail": "실내기 메인 PCB 데이터 읽기 오류",
+                        "procedure": "실내기 PCB 점검 및 교체.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH10",
+                        "category": "실내기",
+                        "symptom": "실내기 팬 모터 구속/이상",
+                        "detail": "실내 팬 동작 불량, 이물질 구속, 모터 단품 불량",
+                        "procedure": "팬에 이물질이 걸렸는지 확인 후 모터 단품 및 커넥터 점검.",
+                        "actionLevel": "자가/점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH12",
+                        "category": "실내기",
+                        "symptom": "실내기 중간 배관 센서 에러",
+                        "detail": "중간 배관 온도센서 단선/단락",
+                        "procedure": "배관 센서 접촉 상태 점검.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH05",
+                        "category": "통신",
+                        "symptom": "실내기 ↔ 실외기 통신 에러",
+                        "detail": "통신선 disconnected, L/N선 오결선, 실외기 전원 차단",
+                        "procedure": "실외기 차단기 온 여부 확인, 통신선 연결 상태 및 납땜 여부 점검.",
+                        "actionLevel": "자가/점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH07",
+                        "category": "통신",
+                        "symptom": "운전 모드 혼용 에러",
+                        "detail": "멀티 에어컨에서 한쪽은 냉방, 한쪽은 난방으로 동시 설정",
+                        "procedure": "모든 실내기의 운전 모드를 동일하게(냉방 또는 난방) 통일.",
+                        "actionLevel": "자가점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH11",
+                        "category": "통신",
+                        "symptom": "중앙제어기 ↔ 실내기 통신 에러",
+                        "detail": "중앙제어기 모듈 및 통신선 이상",
+                        "procedure": "중앙제어기 통신 라인 및 설정 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH21",
+                        "category": "실외기",
+                        "symptom": "DC Peak / IPM 과전류 에러",
+                        "detail": "압축기 과전류, IPM 불량, 실외기 팬 구속",
+                        "procedure": "IPM 방열판 접촉 및 전압 측정, 팬 모터 이물질 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH22",
+                        "category": "실외기",
+                        "symptom": "AC 입력 과전류 에러",
+                        "detail": "실외기 입력 전류 과다, 실외기 팬 구속",
+                        "procedure": "입력 전압 및 실외기 팬 구속 상태 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH23",
+                        "category": "실외기",
+                        "symptom": "DC Link 저전압 / 고전압",
+                        "detail": "입력 전원 순간 정전, S상 결상, DC 전압 이상",
+                        "procedure": "입력 전압 측정, 터미널 블록 전원 단자 체결 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH24",
+                        "category": "실외기",
+                        "symptom": "고압/저압 스위치 작동 (압력 이상)",
+                        "detail": "냉매 누설, 계통 막힘, 고저압 스위치 커넥터 오픈",
+                        "procedure": "냉매량 측정 및 커넥터 체결 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH25",
+                        "category": "실외기",
+                        "symptom": "입력 전압 고전압/저전압 이상",
+                        "detail": "공급 전압 이상 (범위 벗어남)",
+                        "procedure": "메인 전원 입력 전압 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH26",
+                        "category": "실외기",
+                        "symptom": "DC 압축기 위치 감지 에러",
+                        "detail": "인버터 압축기 기동 실패, 상 단자 오픈",
+                        "procedure": "인버터 압축기 연결 상태 및 위치 감지 회로 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH27",
+                        "category": "실외기",
+                        "symptom": "PSC / PFC 과전류 에러",
+                        "detail": "DC 전압 감지부 이상, 리액터 연결 불량",
+                        "procedure": "DC Link 전압 및 Reactor 커넥터 연결 상태 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH28",
+                        "category": "실외기",
+                        "symptom": "인버터 DC Link 고전압 오류",
+                        "detail": "DC Link 전압 과다 상승",
+                        "procedure": "실외기 PCB 전압 제어부 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH29",
+                        "category": "실외기",
+                        "symptom": "인버터 압축기 상 과전류",
+                        "detail": "과부하 운전(배관 막힘/EEV 고장), 압축기 절연 파괴",
+                        "procedure": "배관 막힘, EEV 동작 및 압축기 모터 절연 상태 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH32",
+                        "category": "실외기",
+                        "symptom": "인버터 압축기 토출온도 과상승",
+                        "detail": "냉매 부족, EEV 동작 불량, 배관 찌그러짐",
+                        "procedure": "냉매량 점검, 배관 상태 확인 및 EEV 체결 상태 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH33",
+                        "category": "실외기",
+                        "symptom": "정속 압축기 토출 스위치 이상",
+                        "detail": "정속 압축기 과열 및 토출 스위치 동작",
+                        "procedure": "냉매량 및 토출 스위치 점검.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH34",
+                        "category": "실외기",
+                        "symptom": "고압 상승 차단 감지",
+                        "detail": "실외기 환기 불량, 실외 팬 이상, 냉매 과다",
+                        "procedure": "실외기 갤러리창 개방 확인, 실외기 주변 장애물 제거.",
+                        "actionLevel": "자가/점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH35",
+                        "category": "실외기",
+                        "symptom": "저압 하강 차단 감지",
+                        "detail": "냉매 누설(정량 대비 현저히 부족), 배관 막힘",
+                        "procedure": "냉매 누설 부위 찾기 및 재충전.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH41",
+                        "category": "센서/과열",
+                        "symptom": "인버터 압축기 토출 센서 에러",
+                        "detail": "토출 온도 센서 커넥터 오픈/단선",
+                        "procedure": "센서 커넥터 체결 상태 및 저항 측정.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH42",
+                        "category": "센서/과열",
+                        "symptom": "저압 센서 이상",
+                        "detail": "저압 센서 단신/단락 또는 회로 불량",
+                        "procedure": "저압 센서 출력 전압 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH43",
+                        "category": "센서/과열",
+                        "symptom": "고압 센서 이상",
+                        "detail": "고압 센서 단선/단락 또는 회로 불량",
+                        "procedure": "고압 센서 출력 전압 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH44",
+                        "category": "센서/과열",
+                        "symptom": "실외기 흡입 온도 센서 에러",
+                        "detail": "실외 흡입 온도 센서 단선/단락",
+                        "procedure": "실외 센서 커넥터 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH45",
+                        "category": "센서/과열",
+                        "symptom": "실외기 열교환기/토출 배관 센서 에러",
+                        "detail": "실외 배관 센서 접촉 불량 및 단선",
+                        "procedure": "센서 커넥터 및 저항 측정.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH46",
+                        "category": "센서/과열",
+                        "symptom": "압축기 흡입 온도 센서 에러",
+                        "detail": "흡입 온도 센서 단선/단락",
+                        "procedure": "센서 커넥터 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH47",
+                        "category": "센서/과열",
+                        "symptom": "인젝션 출구/정속 토출 센서 에러",
+                        "detail": "관련 배관 센서 단선/단락",
+                        "procedure": "센서 커넥터 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH51",
+                        "category": "실외기",
+                        "symptom": "실내기 접속 용량 초과",
+                        "detail": "실외기 용량 대비 실내기 조합 용량 초과",
+                        "procedure": "실내기 총 조합 용량 확인 및 재구성.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH53",
+                        "category": "통신",
+                        "symptom": "실외기 기준 실내기 통신 불량",
+                        "detail": "통신선 오픈, T-N 오결선, 노이즈 PCB 이상",
+                        "procedure": "실내외기 통신선 체결 및 노이즈 PCB 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH54",
+                        "category": "통신",
+                        "symptom": "역상 / 결상 감지 에러",
+                        "detail": "3상 전원 R/S/T 오결선, N상 결선 오류, 퓨즈 단선",
+                        "procedure": "전원 배선 순서(상) 재확인 및 퓨즈 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH60",
+                        "category": "실외기",
+                        "symptom": "실외기 PCB EEPROM Checksum 에러",
+                        "detail": "실외기 메인/인버터 PCB EEPROM 납땜/데이터 불량",
+                        "procedure": "EEPROM 칩 체결 확인 및 PCB 교체.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH61",
+                        "category": "센서/과열",
+                        "symptom": "실외기 열교환기 고온 (응축기 과열)",
+                        "detail": "실외기실 환기창(루버) 닫힘, 통풍 장애, 실외기 팬 구속",
+                        "procedure": "실외기실 환기창 열기, 주변 장애물 치우기.",
+                        "actionLevel": "자가점검",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH62",
+                        "category": "센서/과열",
+                        "symptom": "방열판(Heatsink) 과열 에러",
+                        "detail": "인버터 PCB 방열 팬 불량, 방열판 센서 이상",
+                        "procedure": "방열 팬 동작 및 방열판 센서 체결 상태 확인.",
+                        "actionLevel": "기사방문",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CH65",
+                        "category": "센서/과열",
+                        "symptom": "방열판 온도 센서 에러",
+                        "detail": "방열판 센서 커넥터 오픈 및 쇼트",
+                        "procedure": "센서 커넥터 체결 상태 확인.",
+                        "actionLevel": "점검필요",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "CL",
+                        "category": "상태표시",
+                        "symptom": "Child Lock (잠금 기능)",
+                        "detail": "버튼 잠금 설정 상태",
+                        "procedure": "온도 조절 버튼 또는 잠금 해제 버튼 조합을 3초간 누름.",
+                        "actionLevel": "정상표시",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "HI / LO",
+                        "category": "상태표시",
+                        "symptom": "실내 온도 감지 범위 초과",
+                        "detail": "LO: 10℃ 미만 / HI: 35℃ 초과 감지 시",
+                        "procedure": "온도가 정상 범위로 진입하면 자동 해제.",
+                        "actionLevel": "정상표시",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "AI",
+                        "category": "상태표시",
+                        "symptom": "인공지능(AI) 운전 모드",
+                        "detail": "AI 자동 운전 모드 실행 중",
+                        "procedure": "모드 변경 시 해제 가능.",
+                        "actionLevel": "정상표시",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "HL",
+                        "category": "상태표시",
+                        "symptom": "중앙 제어 (High/Low Lock)",
+                        "detail": "중앙제어기에서 개별 조작을 제한한 상태",
+                        "procedure": "건물/아파트 관리실에 중앙 제어 해제 요청.",
+                        "actionLevel": "정상표시",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            },
+            {
+                        "code": "Od / 0d",
+                        "category": "상태표시",
+                        "symptom": "실외기 과열 방지 / 상태 표시",
+                        "detail": "실외기 과열 제어 또는 테스트 모드 동작 중",
+                        "procedure": "실외기 통풍 상태 확인.",
+                        "actionLevel": "정상표시",
+                        "sourceUrl": "https://www.lge.co.kr/support/solutions-20150359010573",
+                        "sourceTitle": "LG전자 고객지원 · 에어컨 에러코드",
+                        "sourceDate": "2026-05-29"
+            }
+];
+
+        function buildLgErrorDatabase(rows) {
+            return rows.map((r, i) => ({
+                id: `lg-${i}-${String(r.code).replace(/[^A-Z0-9]/gi,'')}`,
+                brand: 'LG',
+                productFamily: '에어컨',
+                modelScope: `LG 에어컨 · ${r.category}`,
+                code: r.code,
+                symptom: r.symptom,
+                target: r.detail,
+                procedure: r.procedure,
+                officialNote: `조치 수준: ${r.actionLevel}`,
+                sourceTitle: r.sourceTitle,
+                sourceDate: r.sourceDate,
+                sourceUrl: r.sourceUrl,
+                referenceUrls: r.referenceUrls || [],
+                category: r.category,
+                actionLevel: r.actionLevel,
+                sourceRange: '개별 점검코드'
+            }));
+        }
+
+        const CARRIER_ERROR_ROWS = [
+            {
+                        "code": "E0",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내기 EEPROM 매개변수 데이터 오류",
+                        "procedure": "실내기 메인 PCB 점검 및 교체"
+            },
+            {
+                        "code": "E1",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내기-실외기 통신 에러",
+                        "procedure": "실내/실외기 신호선 연결 상태, 배선 및 접속 단자 점검"
+            },
+            {
+                        "code": "E2",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "전원 Zero Crossing 신호 감지 에러",
+                        "procedure": "입력 전압 교류 파형 검출 회로 및 PCB 점검"
+            },
+            {
+                        "code": "E3",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내기 팬 모터 속도 제어 불능",
+                        "procedure": "Hall Sensor, 팬 모터 커넥터 및 실내기 PCB 점검"
+            },
+            {
+                        "code": "E4",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내기 실온 온도센서(T1) 이상",
+                        "procedure": "T1 센서 단선/단락 점검 및 저항값 확인"
+            },
+            {
+                        "code": "E5",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내기 증발기 코일 온도센서(T2) 이상",
+                        "procedure": "T2 코일 센서 단선/단락 점검 및 교체"
+            },
+            {
+                        "code": "E6",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "모델별 상이: 실내/증발기 센서 또는 실내 팬 관련 이상",
+                        "procedure": "해당 모델 서비스매뉴얼의 E6 정의를 먼저 확인한 뒤 팬 모터·센서·커넥터 및 PCB를 점검."
+            },
+            {
+                        "code": "E7",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실내 온도센서 오배선/단선 (일부 모델)",
+                        "procedure": "센서 배선·커넥터 체결과 단선/단락을 확인하고, 반드시 해당 모델의 E7/E8 코드표와 대조."
+            },
+            {
+                        "code": "E9",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "Wi‑Fi 모듈 통신 불량 (일부 모델)",
+                        "procedure": "Wi‑Fi 모듈 연결·커넥터 및 통신 상태를 확인. 모델에 따라 E9 의미가 다를 수 있으므로 서비스매뉴얼 확인."
+            },
+            {
+                        "code": "EC",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "냉매 누설 감지",
+                        "procedure": "냉매 누설 여부 점검 및 배관 Leak 검사, 냉매 재충전"
+            },
+            {
+                        "code": "F1",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실외기 주위 온도센서(T4) 이상",
+                        "procedure": "T4 외기 온도센서 단선/단락 및 저항값 점검 (모델별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "F2",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실외기 응축기 코일 온도센서(T3) 이상",
+                        "procedure": "T3 응축기 센서 연결 및 저항값 점검 (모델별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "F3",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "압축기 토출 온도센서(T5/TD) 이상",
+                        "procedure": "토출관 센서 단선/단락 및 과열 여부 점검 (모델별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "F4",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실외기 EEPROM 매개변수 오류",
+                        "procedure": "실외기 PCB 데이터 이상, PCB 점검 및 교체"
+            },
+            {
+                        "code": "F5",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실외기 팬 모터 속도 제어 불능",
+                        "procedure": "실외기 팬 모터, 모터 캡시터 및 PCB 점검"
+            },
+            {
+                        "code": "F6",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "실외기 팬 모터 과열 / 구동 불능",
+                        "procedure": "팬 회전 장애 이물질 제거 및 모터 과열 점검"
+            },
+            {
+                        "code": "P0",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "IPM 오작동 또는 IGBT 과전류 보호",
+                        "procedure": "인버터 IPM 모듈, IGBT 소자 및 압축기 점검"
+            },
+            {
+                        "code": "P1",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "과전압 또는 극저전압 보호",
+                        "procedure": "입력 공급 전압(VAC) 변동 및 메인 전원 점검"
+            },
+            {
+                        "code": "P2",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "압축기 고온 보호 또는 상부 보호 작동",
+                        "procedure": "압축기 과열 여부, 냉매량 및 밸브 상태 점검"
+            },
+            {
+                        "code": "P4",
+                        "category": "벽걸이 / 가정용",
+                        "symptom": "인버터 압축기 구동부 에러",
+                        "procedure": "인버터 압축기 위치 감지 및 압축기 배선 점검"
+            },
+            {
+                        "code": "02",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외기 인버터 회로 전류 범위 초과",
+                        "procedure": "IGBT 단락 또는 압축기 구속 여부 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "03",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외기 반송 신호 정지",
+                        "procedure": "순간 정전 또는 고압 스위치 작동 상태 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "10",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "토출관 온도센서(TD) 미연결/단락",
+                        "procedure": "TD 센서 체결 상태 및 저항값 측정 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "14",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "압축기 전류 한계 초과 / 회전자 잠김",
+                        "procedure": "압축기 기계적 구속(Lock) 및 입력 전류 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "17",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외기 인버터 PCB 전류 감지 회로 이상",
+                        "procedure": "실외기 인버터 PCB 전류 감지 CT 소자 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "18",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외기 열교환기 센서(TE) 위치 이탈",
+                        "procedure": "TE 센서 고정 상태 및 센서 특성 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1A",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외기 팬 모터 구동 회로 이상",
+                        "procedure": "실외기 팬 모터 구동 IPM 및 회로 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1b",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "실외 외기 온도센서(TO) 단선/미연결",
+                        "procedure": "TO 외기 센서 연결부 및 저항값 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1C",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "압축기 구동 출력 이상",
+                        "procedure": "전압/전류/주파수 비정상 또는 PMV 결함 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1E",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "배출관 온도 117℃ 초과 (과열)",
+                        "procedure": "냉매 부족, 막힘 여부 및 압축기 과열 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1F",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "주파수 감소 후 지속 과전류 상태",
+                        "procedure": "인버터 모듈 부하 과다 및 압축기 상태 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "Discharge(토출관) 온도 과승 보호",
+                        "procedure": "냉매 사이클 고압/토출온도 과상승 요인 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "2-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "OLP(압축기 보호 스위치) 작동",
+                        "procedure": "압축기 과열 및 OLP 스위치 접점 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "3-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "PFC 방열판 과열 보호 (95℃ 초과)",
+                        "procedure": "실외기 방열판 통풍 및 서멀 구리스 상태 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "4-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "IR 과전류 트립 보호",
+                        "procedure": "인버터 회로 과전류 발생 여부 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "5-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "NEC 과전류 트립 보호",
+                        "procedure": "메인 제어 기판 과전류 감지 회로 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "6-2",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "ODC 고온 보호 (압축기/팬 OFF)",
+                        "procedure": "실외기 열교환기 과열 및 환기 상태 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "ODA 센서(외기 온도) 이상",
+                        "procedure": "ODA 센서 단선/단락 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "2-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "ODC 센서(열교환기) 이상",
+                        "procedure": "ODC 센서 커넥터 및 저항값 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "3-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "토출관 센서 이상",
+                        "procedure": "실외기 토출관 센서 특성 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "4-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "CDE-메인 간 NEC UART 통신 에러",
+                        "procedure": "내부 마이컴 간 통신 배선 및 PCB 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "5-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "압축기 흡입 센서(Suction) 이상",
+                        "procedure": "흡입 센서 범위를 벗어남 (-40℃ 이하 또는 90℃ 이상) (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "7-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "메인 입력 전압 이상",
+                        "procedure": "전압 범위 벗어남 (130VAC 미만 또는 310VAC 초과) (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "8-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "딥 스위치(Dip Switch) 설정 오류",
+                        "procedure": "실외기 PCB 딥 스위치 옵션 설정값 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "9-4",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "메인 PCB - CDE PCB 통신 이상",
+                        "procedure": "실외기 메인보드 간 통신 신호 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "SPM 전류 감지 이상",
+                        "procedure": "전류 감지 범위를 벗어남 (21A 이상 또는 2A 이하) (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "2-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "DC-LINK 전압 감지 이상",
+                        "procedure": "DC 전압 범위를 벗어남 (50VDC 미만 또는 480VDC 초과) (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "3-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "방열판 온도 감지 / PFC 모듈 이상",
+                        "procedure": "PFC 모듈 및 방열판 온도센서 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "5-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "DC BUS 과전압 트립 (DC 400V 이상)",
+                        "procedure": "입력 전압 과다 및 DC 링크 콘덴서 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "6-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "DC BUS 저전압 트립 (DC 200V 이하)",
+                        "procedure": "입력 전압 강하 및 DC 링크 회로 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "7-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "PWM 동기화 에러",
+                        "procedure": "인버터 구동 PWM 제어 신호 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "8-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "PFC Gate Kill Fault",
+                        "procedure": "PFC 회로 과전류 보호 동작 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "9-5",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "Compressor Gate Kill Fault",
+                        "procedure": "SPM 모듈 과전류 보호 동작 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "1-6",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "압축기 결상(Phase Loss) 오류",
+                        "procedure": "압축기 U, V, W 배선 단선 및 결상 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "2-6",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "압축기 Zero Speed (회전 불가) 오류",
+                        "procedure": "압축기 기계적 구속 및 구동 회로 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "3-6",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "DC BUS Critical Voltage 트립",
+                        "procedure": "DC 링크 임계 전압 초과 보호 동작 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "4-6",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "Zero Crossing 감지 실패",
+                        "procedure": "AC 전원 동기 신호 감지 회로 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "0-7",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "PLC 메인 통신 에러",
+                        "procedure": "메인 통신 모듈 상태 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "0-8",
+                        "category": "인버터 고급형 · 특정 모델군",
+                        "symptom": "ODC 고온 과열 감지",
+                        "procedure": "실외기 열방출 상태 및 갤러리창 점검 (특정 인버터 제품군의 서비스코드로 취급하며, 모델별 서비스매뉴얼 확인 필수.)"
+            },
+            {
+                        "code": "E2 / Er-2",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "실내기-실외기 통신 또는 메모리 이상",
+                        "procedure": "통신 배선 체결 및 Control Board 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "E3 / Er-3",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "압축기 작동 불량 / 실내기 센서 1 이상",
+                        "procedure": "압축기 마그네트 스위치 및 센서 1 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "E4 / Er-4",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "실내기 실온 온도센서 이상",
+                        "procedure": "실내 실온 센서 저항값 측정 및 교체 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "E5 / Er-5",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "실내기 배관(열교환기) 온도센서 이상",
+                        "procedure": "열교환기 배관 센서 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "E6",
+                        "category": "스탠드 / 패키지",
+                        "symptom": "모델별 상이: 실내/증발기 센서 또는 실내 팬 관련 이상",
+                        "procedure": "해당 모델 서비스매뉴얼의 E6 정의를 먼저 확인한 뒤 팬 모터·센서·커넥터 및 PCB를 점검."
+            },
+            {
+                        "code": "E7",
+                        "category": "스탠드 / 패키지",
+                        "symptom": "실내 온도센서 오배선/단선 (일부 모델)",
+                        "procedure": "센서 배선·커넥터 체결과 단선/단락을 확인하고, 반드시 해당 모델의 E7/E8 코드표와 대조."
+            },
+            {
+                        "code": "E8",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "드레인 펌프 / 수위 스위치 오동작",
+                        "procedure": "드레인 호스 막힘, 수위 스위치 및 펌프 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "Unit Trip 1",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "실외기 파워 차단 또는 3상 역상 감지",
+                        "procedure": "3상 전원 R-S-T 상순 및 차단기 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "Comp Malfunction",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "압축기 가동 신호 후 전류 미감지",
+                        "procedure": "압축기 구동 콘택터 및 과전류 보호기 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "Er",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "메인 제어반 메모리(EEPROM) 오류",
+                        "procedure": "EEPROM 리셋 또는 메인 제어반 교체 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            },
+            {
+                        "code": "4-Way Valve Error",
+                        "category": "스탠드 / 패키지 · 특정 모델군",
+                        "symptom": "사방밸브 전환 불량",
+                        "procedure": "냉/난방 전환 사방밸브 코일 및 배관 상태 점검 (제품군·연식별 코드 체계가 다를 수 있으므로 해당 모델 매뉴얼 확인.)"
+            }
+];
+
+        function buildCarrierErrorDatabase(rows) {
+            const officialManualUrl = 'https://www.carrier.co.kr/crk/cs/product_manual';
+            return rows.map((r, i) => ({
+                id: `carrier-${i}-${String(r.code).replace(/[^A-Z0-9]/gi,'')}`,
+                brand: 'CARRIER',
+                productFamily: '에어컨',
+                modelScope: r.category,
+                code: r.code,
+                symptom: r.symptom,
+                target: '서비스매뉴얼 기준 점검 대상 · 모델별 상이 가능',
+                procedure: r.procedure,
+                officialNote: '캐리어 에어컨은 제품군·연식·모델에 따라 동일 코드의 의미가 달라질 수 있습니다. 표시 코드와 모델명을 함께 확인한 뒤 해당 모델 서비스매뉴얼을 우선 적용하십시오.',
+                sourceTitle: '캐리어 공식 제품 사용설명서',
+                sourceDate: '공식 매뉴얼 확인 필요',
+                sourceUrl: officialManualUrl,
+                referenceUrls: [],
+                category: r.category,
+                actionLevel: '모델 확인 후 점검',
+                sourceRange: '개별 점검코드'
+            }));
+        }
+
+        const TRANE_ERROR_ROWS = [
+            // Trane Mini C Series VRF 50/60Hz — official service manual
+            {code:'C0', family:'Mini C Series VRF', scope:'10/12 kW', symptom:'메인 제어보드와 통신 변환보드 간 통신 이상', procedure:'메인 제어보드·통신 변환보드 및 통신 배선/커넥터를 점검.'},
+            {code:'EE', family:'Mini C Series VRF', scope:'8 kW', symptom:'압축기 인버터 모듈보드 비정상 정지', procedure:'인버터 모듈보드와 압축기 구동회로를 점검.'},
+            {code:'E2', family:'Mini C Series VRF', scope:'전체 모델', symptom:'실외기와 실내기 간 통신 이상', procedure:'P/Q/E 통신배선, 단자, 통신회로 및 PCB를 점검.'},
+            {code:'E4', family:'Mini C Series VRF', scope:'전체 모델', symptom:'T3 또는 T4 온도센서 이상', procedure:'T3/T4 센서 연결·저항값과 PCB 입력부를 점검.'},
+            {code:'E5', family:'Mini C Series VRF', scope:'전체 모델', symptom:'입력 전압 보호', procedure:'전원 전압과 입력 전원회로를 점검.'},
+            {code:'E6', family:'Mini C Series VRF', scope:'전체 모델', symptom:'DC 팬 보호', procedure:'DC 팬 모터, 팬 모듈, 배선 및 회전 상태를 점검.'},
+            {code:'E7', family:'Mini C Series VRF', scope:'8 kW', symptom:'토출온도(T5) 센서 이상', procedure:'토출온도 센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E9', family:'Mini C Series VRF', scope:'전체 모델', symptom:'EEPROM 오류', procedure:'EEPROM 데이터 및 메인 PCB 상태를 점검.'},
+            {code:'E.9.', family:'Mini C Series VRF', scope:'전체 모델', symptom:'압축기 파라미터 불일치', procedure:'압축기 파라미터 설정 및 관련 PCB 데이터를 확인.'},
+            {code:'Eb', family:'Mini C Series VRF', scope:'전체 모델', symptom:'E6 보호가 1시간 내 6회 초과 발생', procedure:'DC 팬 관련 원인을 우선 점검하고 반복 보호 발생 원인을 확인.'},
+            {code:'EF', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'PFC 오류', procedure:'PFC 회로와 인버터 전원부를 점검.'},
+            {code:'EH', family:'Mini C Series VRF', scope:'전체 모델', symptom:'냉매 라디에이터 온도센서 이상', procedure:'라디에이터 온도센서와 배선·커넥터를 점검.'},
+            {code:'EP', family:'Mini C Series VRF', scope:'전체 모델', symptom:'냉방 운전 시 외기온도 -5℃ 미만', procedure:'외기온도와 운전 조건을 확인하고 해당 운전범위를 적용.'},
+            {code:'F1', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'DC 버스 전압 보호', procedure:'DC 버스 전압 및 인버터 전원회로를 점검.'},
+            {code:'H0', family:'Mini C Series VRF', scope:'전체 모델', symptom:'인버터 모듈보드와 메인 제어보드 간 통신 이상', procedure:'두 보드 간 통신배선·커넥터 및 PCB를 점검.'},
+            {code:'H4', family:'Mini C Series VRF', scope:'전체 모델', symptom:'L0/L1 오류가 1시간 내 3회 발생', procedure:'L0/L1의 근본 원인을 먼저 점검한 뒤 보호 반복 여부를 확인.'},
+            {code:'H7', family:'Mini C Series VRF', scope:'전체 모델', symptom:'검출된 실내기 대수가 증가 또는 감소', procedure:'실내기 연결 상태, 주소 설정 및 통신을 점검.'},
+            {code:'L0', family:'Mini C Series VRF', scope:'전체 모델', symptom:'IPM 모듈 보호', procedure:'IPM 모듈, 압축기 및 인버터 회로를 점검.'},
+            {code:'L1', family:'Mini C Series VRF', scope:'전체 모델', symptom:'DC 버스 저전압 보호', procedure:'DC 버스 전압과 전원 공급부를 점검.'},
+            {code:'L2', family:'Mini C Series VRF', scope:'전체 모델', symptom:'DC 버스 고전압 보호', procedure:'DC 버스 전압과 정류·인버터 전원부를 점검.'},
+            {code:'L4', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'MCE 이상', procedure:'인버터 모듈과 압축기 구동 동기/제어회로를 점검.'},
+            {code:'L5', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'영속도 보호', procedure:'압축기 구동 상태와 인버터 회로를 점검.'},
+            {code:'L7', family:'Mini C Series VRF', scope:'전체 모델', symptom:'상순 오류', procedure:'3상 전원 상순 및 전원 배선을 확인.'},
+            {code:'L8', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'1초 내 주파수 차이 15Hz 초과 보호', procedure:'압축기 설정/실제 주파수와 인버터 제어 상태를 점검.'},
+            {code:'L9', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'압축기 설정속도와 실제속도 차이 15Hz 초과 보호', procedure:'압축기 구동 및 인버터 제어 상태를 점검.'},
+            {code:'LA', family:'Mini C Series VRF', scope:'8 kW', symptom:'압축기 과전류 보호', procedure:'압축기 전류와 압축기·인버터 회로를 점검.'},
+            {code:'PL', family:'Mini C Series VRF', scope:'전체 모델', symptom:'라디에이터 표면온도 보호', procedure:'인버터 라디에이터 온도와 냉각·방열 상태를 점검.'},
+            {code:'P1', family:'Mini C Series VRF', scope:'10~16 kW', symptom:'시스템 고압 보호', procedure:'고압 상태, 열교환기·팬 및 냉매회로를 점검.'},
+            {code:'P2', family:'Mini C Series VRF', scope:'전체 모델', symptom:'시스템 저압 보호', procedure:'저압 상태, 냉매량·누설·유량 및 압축기 상태를 점검.'},
+            {code:'P3', family:'Mini C Series VRF', scope:'전체 모델', symptom:'과전류 보호', procedure:'운전전류와 압축기·인버터 회로를 점검.'},
+            {code:'P4', family:'Mini C Series VRF', scope:'전체 모델', symptom:'토출온도 보호', procedure:'토출온도, 냉매회로 및 압축기 냉각 상태를 점검.'},
+            {code:'P5', family:'Mini C Series VRF', scope:'전체 모델', symptom:'실외 열교환기 T3 온도 보호', procedure:'T3 센서와 실외 열교환기·팬의 열교환 상태를 점검.'},
+            {code:'P8', family:'Mini C Series VRF', scope:'전체 모델', symptom:'태풍 보호', procedure:'강풍 조건 및 실외기 팬 운전 상태를 확인.'},
+            {code:'PE', family:'Mini C Series VRF', scope:'전체 모델', symptom:'실내기 증발기 T2 온도 보호', procedure:'T2 센서와 실내 열교환기 온도·풍량 상태를 점검.'},
+
+            // Trane Mini TVR 25.2/28kW — official technical service manual
+            {code:'E1', family:'Mini TVR', scope:'25.2/28 kW', symptom:'공식 오류표에서는 예약/미사용으로 표기되나, 매뉴얼 Troubleshooting에는 상순 오류(E1) 절차가 별도로 기재됨', procedure:'실제 표시 상황을 확인하고 3상 전원 상순·전원 단자를 우선 점검한 뒤 해당 모델 매뉴얼의 E1 절차를 적용.'},
+            {code:'E2', family:'Mini TVR', scope:'25.2/28 kW', symptom:'실외기와 실내기 간 통신 이상', procedure:'P/Q/E 통신배선, 단자 및 통신회로를 점검.'},
+            {code:'E4', family:'Mini TVR', scope:'25.2/28 kW', symptom:'T3/T4 온도센서 이상', procedure:'T3/T4 센서 연결·저항값 및 PCB 입력부를 점검.'},
+            {code:'E5', family:'Mini TVR', scope:'25.2/28 kW', symptom:'전압 보호 또는 B상·N상 결상 조건', procedure:'3상 전원 전압과 결상 여부 및 전원 단자를 점검.'},
+            {code:'E6', family:'Mini TVR', scope:'25.2/28 kW', symptom:'DC 팬 모터 이상', procedure:'DC 팬 모터, 팬 모듈, 배선 및 회전 상태를 점검.'},
+            {code:'E7', family:'Mini TVR', scope:'25.2/28 kW', symptom:'토출온도 센서 이상', procedure:'토출온도 센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'EA', family:'Mini TVR', scope:'25.2/28 kW', symptom:'난방 중 A 영역 팬이 5분 이상 운전', procedure:'팬 운전 조건과 팬 제어 상태를 확인.'},
+            {code:'EB', family:'Mini TVR', scope:'25.2/28 kW', symptom:'10분 내 E6 보호 2회 발생', procedure:'DC 팬 관련 원인을 점검하고 반복 보호 원인을 확인.'},
+            {code:'H0', family:'Mini TVR', scope:'25.2/28 kW', symptom:'메인 제어칩과 모듈칩 간 통신 이상', procedure:'메인 PCB와 모듈 간 통신배선·커넥터 및 PCB를 점검.'},
+            {code:'H1', family:'Mini TVR', scope:'25.2/28 kW', symptom:'메인 제어칩과 통신칩 간 통신 이상', procedure:'통신칩 및 통신회로를 점검.'},
+            {code:'H4', family:'Mini TVR', scope:'25.2/28 kW', symptom:'30분 내 P6 보호 3회 발생', procedure:'P6 모듈 보호의 근본 원인을 먼저 점검.'},
+            {code:'H5', family:'Mini TVR', scope:'25.2/28 kW', symptom:'30분 내 P2 보호 3회 발생', procedure:'P2 저압 보호의 근본 원인을 먼저 점검.'},
+            {code:'H7', family:'Mini TVR', scope:'25.2/28 kW', symptom:'검출된 실내기 대수가 감소', procedure:'실내기 연결·주소·통신 상태를 점검.'},
+            {code:'H8', family:'Mini TVR', scope:'25.2/28 kW', symptom:'예약/미사용 코드', procedure:'해당 모델 매뉴얼에서 적용 여부를 확인.'},
+            {code:'P0', family:'Mini TVR', scope:'25.2/28 kW', symptom:'인버터 압축기 상부온도 보호', procedure:'압축기 상부온도와 냉각·냉매회로를 점검.'},
+            {code:'P1', family:'Mini TVR', scope:'25.2/28 kW', symptom:'고압 보호', procedure:'고압 상태, 열교환기·팬 및 냉매회로를 점검.'},
+            {code:'P2', family:'Mini TVR', scope:'25.2/28 kW', symptom:'저압 보호', procedure:'저압 상태, 냉매량·누설·유량 및 압축기 상태를 점검.'},
+            {code:'P3', family:'Mini TVR', scope:'25.2/28 kW', symptom:'인버터 압축기 과전류 보호', procedure:'압축기 전류와 인버터·압축기 회로를 점검.'},
+            {code:'P4', family:'Mini TVR', scope:'25.2/28 kW', symptom:'압축기 토출온도 보호', procedure:'토출온도, 냉매회로 및 압축기 냉각 상태를 점검.'},
+            {code:'P5', family:'Mini TVR', scope:'25.2/28 kW', symptom:'실외 응축기 고온 보호', procedure:'실외 열교환기, 팬 및 T3 계통을 점검.'},
+            {code:'P6', family:'Mini TVR', scope:'25.2/28 kW', symptom:'모듈 보호', procedure:'인버터 모듈과 전원·압축기 회로를 점검.'},
+            {code:'P8', family:'Mini TVR', scope:'25.2/28 kW', symptom:'태풍 보호', procedure:'강풍 조건 및 실외기 팬 운전 상태를 확인.'},
+            {code:'P9', family:'Mini TVR', scope:'25.2/28 kW', symptom:'DC 팬 모듈 보호', procedure:'팬 모듈 전원·신호·모터 및 방열 상태를 점검.'},
+            {code:'PE', family:'Mini TVR', scope:'25.2/28 kW', symptom:'증발기 고온 보호', procedure:'실내 열교환기 온도·풍량 및 센서 상태를 점검.'},
+            {code:'L0', family:'Mini TVR', scope:'25.2/28 kW', symptom:'인버터 모듈 오류', procedure:'인버터 모듈과 관련 전원·압축기 회로를 점검.'},
+            {code:'L1', family:'Mini TVR', scope:'25.2/28 kW', symptom:'DC 버스 저전압 보호', procedure:'DC 버스 전압과 전원 공급부를 점검.'},
+            {code:'L2', family:'Mini TVR', scope:'25.2/28 kW', symptom:'DC 버스 고전압 보호', procedure:'DC 버스 전압과 정류·인버터 전원부를 점검.'},
+            {code:'L3', family:'Mini TVR', scope:'25.2/28 kW', symptom:'예약/미사용 코드', procedure:'해당 모델 매뉴얼에서 적용 여부를 확인.'},
+            {code:'L4', family:'Mini TVR', scope:'25.2/28 kW', symptom:'MCE/동기화/폐루프 오류', procedure:'인버터 모듈과 압축기 구동 동기·제어회로를 점검.'},
+            {code:'L5', family:'Mini TVR', scope:'25.2/28 kW', symptom:'영속도 보호', procedure:'압축기 구동 및 인버터 제어 상태를 점검.'},
+            {code:'L6', family:'Mini TVR', scope:'25.2/28 kW', symptom:'예약/미사용 코드', procedure:'해당 모델 매뉴얼에서 적용 여부를 확인.'},
+            {code:'L7', family:'Mini TVR', scope:'25.2/28 kW', symptom:'상순 오류', procedure:'3상 전원 상순 및 전원 배선을 확인.'},
+            {code:'L8', family:'Mini TVR', scope:'25.2/28 kW', symptom:'1초 내 주파수 차이 15Hz 초과 보호', procedure:'압축기 설정/실제 주파수와 인버터 제어 상태를 점검.'},
+            {code:'L9', family:'Mini TVR', scope:'25.2/28 kW', symptom:'실제 주파수와 설정 주파수 차이 15Hz 초과 보호', procedure:'압축기 구동 및 인버터 제어 상태를 점검.'},
+
+            // Trane TVR Pro CO — official service manual
+            {code:'E0', family:'TVR Pro', scope:'TVR Pro CO', symptom:'실외기 간 통신 이상', procedure:'실외기 간 통신배선·주소 및 통신회로를 점검.'},
+            {code:'E1', family:'TVR Pro', scope:'TVR Pro CO', symptom:'상순 오류', procedure:'3상 전원 상순과 전원 단자를 점검.'},
+            {code:'E2', family:'TVR Pro', scope:'TVR Pro CO', symptom:'실내기와 마스터 실외기 간 통신 이상', procedure:'실내기-마스터 실외기 통신배선 및 통신회로를 점검.'},
+            {code:'E4', family:'TVR Pro', scope:'TVR Pro CO', symptom:'실외 열교환기 T3 또는 외기 T4 센서 이상', procedure:'T3/T4 센서 연결·저항값 및 PCB 입력부를 점검.'},
+            {code:'E5', family:'TVR Pro', scope:'TVR Pro CO', symptom:'전원전압 이상', procedure:'전원 전압과 3상 전원 상태를 점검.'},
+            {code:'E7', family:'TVR Pro', scope:'TVR Pro CO', symptom:'압축기 상부/토출배관 T7C1/T7C2 센서 이상', procedure:'T7C1/T7C2 센서와 배선·저항값을 점검.'},
+            {code:'E8', family:'TVR Pro', scope:'TVR Pro CO', symptom:'실외기 주소 오류', procedure:'실외기 주소 설정 및 DIP/설정 상태를 확인.'},
+            {code:'E9', family:'TVR Pro', scope:'TVR Pro CO', symptom:'EEPROM 불일치', procedure:'EEPROM 데이터와 PCB 상태를 점검.'},
+            {code:'F1', family:'TVR Pro', scope:'TVR Pro CO', symptom:'DC 버스 전압 오류', procedure:'DC 버스 전압과 인버터 전원회로를 점검.'},
+            {code:'F6', family:'TVR Pro', scope:'TVR Pro CO', symptom:'전자팽창밸브 연결 오류', procedure:'전자팽창밸브 배선·커넥터 및 밸브 구동부를 점검.'},
+            {code:'H0', family:'TVR Pro', scope:'TVR Pro CO', symptom:'메인 제어칩과 인버터 드라이버칩 간 통신 이상', procedure:'메인 PCB와 인버터 드라이버 간 통신회로를 점검.'},
+            {code:'H2', family:'TVR Pro', scope:'TVR Pro CO', symptom:'마스터가 검출한 Slave 대수 감소', procedure:'Slave 실외기 연결·통신 및 주소 설정을 점검.'},
+            {code:'H3', family:'TVR Pro', scope:'TVR Pro CO', symptom:'마스터가 검출한 Slave 대수 증가', procedure:'실외기 수량 설정·주소 및 통신을 점검.'},
+            {code:'H4', family:'TVR Pro', scope:'TVR Pro CO', symptom:'인버터 모듈 보호', procedure:'인버터 모듈, 압축기 및 전원회로를 점검.'},
+            {code:'H5', family:'TVR Pro', scope:'TVR Pro CO', symptom:'60분 내 P2 보호 3회 발생', procedure:'P2 저압 보호의 근본 원인을 먼저 점검.'},
+            {code:'H6', family:'TVR Pro', scope:'TVR Pro CO', symptom:'100분 내 P4 보호 3회 발생', procedure:'P4 토출온도 보호의 근본 원인을 먼저 점검.'},
+            {code:'H7', family:'TVR Pro', scope:'TVR Pro CO', symptom:'설정 실내기 수와 검출 수 불일치', procedure:'실내기 수량 설정·주소·통신 상태를 점검.'},
+            {code:'H8', family:'TVR Pro', scope:'TVR Pro CO', symptom:'고압센서 이상', procedure:'고압센서 배선·압력값 및 센서 회로를 점검.'},
+            {code:'H9', family:'TVR Pro', scope:'TVR Pro CO', symptom:'120분 내 P9 보호 10회 발생', procedure:'P9 팬 모듈 보호의 근본 원인을 먼저 점검.'},
+            {code:'1Hd / 2Hd', family:'TVR Pro', scope:'TVR Pro CO', symptom:'Slave 실외기 이상 (1Hd=주소 1, 2Hd=주소 2)', procedure:'해당 Slave 실외기의 표시코드와 전원·통신·상태를 확인.'},
+            {code:'C7', family:'TVR Pro', scope:'TVR Pro CO', symptom:'100분 내 PL 보호 3회 발생', procedure:'PL 인버터 모듈 온도 보호의 근본 원인을 점검.'},
+            {code:'P1', family:'TVR Pro', scope:'TVR Pro CO', symptom:'토출배관 고압 보호', procedure:'고압 상태, 열교환기·팬 및 냉매회로를 점검.'},
+            {code:'P2', family:'TVR Pro', scope:'TVR Pro CO', symptom:'흡입배관 저압 보호', procedure:'저압 상태, 냉매량·누설·유량 및 압축기 상태를 점검.'},
+            {code:'P3', family:'TVR Pro', scope:'TVR Pro CO', symptom:'압축기 과전류 보호', procedure:'압축기 전류, 압축기 배선·절연 및 인버터 모듈 상태를 점검.'},
+            {code:'P4', family:'TVR Pro', scope:'TVR Pro CO', symptom:'토출온도 보호', procedure:'토출온도, 냉매회로 및 압축기 냉각 상태를 점검.'},
+            {code:'P5', family:'TVR Pro', scope:'TVR Pro CO', symptom:'실외 열교환기 온도 보호', procedure:'실외 열교환기, 팬 및 온도센서를 점검.'},
+            {code:'P9', family:'TVR Pro', scope:'TVR Pro CO', symptom:'팬 모듈 보호', procedure:'팬 모듈 전원·신호·모터 및 방열 상태를 점검.'},
+
+            // Trane R410A Inverter Mini-Split — official service manual
+            {code:'E0', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실내기-실외기 통신 이상', procedure:'실내/실외기 통신배선, 단자 및 통신회로를 점검.'},
+            {code:'EC', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실외기 통신 이상', procedure:'실외기 통신배선·PCB 및 통신 상태를 점검.'},
+            {code:'E1', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실내 온도센서(IRT) 이상', procedure:'실내 온도센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E2', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실내 열교환기 센서(IPT) 이상', procedure:'실내 열교환기 센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E3', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실외 열교환기 센서(OPT) 이상', procedure:'실외 열교환기 센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E4', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'시스템 이상', procedure:'표시된 상태와 관련 센서·제어회로를 해당 모델 매뉴얼에 따라 점검.'},
+            {code:'E5', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'모델 설정 오류', procedure:'모델 설정값과 PCB 설정을 확인.'},
+            {code:'E6', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실내 팬 모터 이상', procedure:'실내 팬 모터, 배선, 회전 상태 및 PCB를 점검.'},
+            {code:'E7', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실외 온도센서 이상', procedure:'실외 온도센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E8', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'배기/토출온도 센서 이상', procedure:'토출온도 센서 배선·저항값 및 PCB 입력부를 점검.'},
+            {code:'E9', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'IPM 구동/모듈 이상', procedure:'IPM 모듈, 압축기 및 인버터 회로를 점검.'},
+            {code:'EF', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'DC 실외 팬 모터 이상', procedure:'DC 실외 팬 모터, 배선 및 구동회로를 점검.'},
+            {code:'EA', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'전류센서 이상', procedure:'전류센서와 배선 및 PCB 입력회로를 점검.'},
+            {code:'EE', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'실내기 EEPROM 이상', procedure:'EEPROM 데이터 및 실내기 PCB 상태를 점검.'},
+            {code:'EP', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'압축기 상부 온도 스위치 이상', procedure:'압축기 상부 온도 스위치와 배선을 점검.'},
+            {code:'EU', family:'R410A Inverter Mini-Split', scope:'R410A 인버터 벽걸이/미니 스플릿', symptom:'전압센서 이상', procedure:'전압센서와 전원/PCB 입력회로를 점검.'}
+        ];
+
+        function buildTraneErrorDatabase(rows) {
+            const sources = {
+                'Mini C Series VRF': 'https://www.trane.com/content/dam/Trane/Commercial/lar/br/produtos-sistemas/equipamentos/Sistema_VRF/MiniTVR/manual-de-servi%C3%A7o/technical-manual-en-outdoor-tvr-mini-dc-220v-4tvh-sn-07092021.pdf',
+                'Mini TVR': 'https://www.trane.com/content/dam/Trane/Commercial/lar/br/produtos-sistemas/equipamentos/Sistema_VRF/MiniTVR/8-e-10-hp---220v-3f/manual-de-instala%C3%A7%C3%A3o-e-opera%C3%A7%C3%A3o/Service-Manual-EN-VRF-Mini-TVR-Individual-TSM-220V-60Hz-4TVH00-10052021.pdf',
+                'TVR Pro': 'https://residencial.trane.com.br/arquivos/sistema-tvr-pro/manual-de-servico/sm-en-vrf-outdoor-unit-tvr-pro-380v-50-60hz-4tvy-vrf-svm051a-en.pdf',
+                'R410A Inverter Mini-Split': 'https://www.trane.com/content/dam/Trane/Commercial/lar/br/produtos-sistemas/equipamentos/Minisplits/mini-split-hi-wall-inverter/trane-inverter-air-conditioner-service-manual-r410a-20201111.pdf'
+            };
+            return rows.map((r, i) => ({
+                id: `trane-${i}-${String(r.code).replace(/[^A-Z0-9]/gi,'')}`,
+                brand: 'TRANE',
+                productFamily: '에어컨',
+                modelScope: `Trane · ${r.family} · ${r.scope}`,
+                code: r.code,
+                symptom: r.symptom,
+                target: '해당 Trane 제품군 서비스매뉴얼 기준 점검 대상',
+                procedure: r.procedure,
+                officialNote: 'Trane은 제품군·모델별 오류코드 체계가 다를 수 있습니다. 실제 표시 코드와 모델명을 확인한 뒤 해당 제품군의 공식 서비스매뉴얼을 우선 적용하십시오.',
+                sourceTitle: `Trane 공식 서비스매뉴얼 · ${r.family}`,
+                sourceDate: '공식 서비스매뉴얼',
+                sourceUrl: sources[r.family],
+                referenceUrls: [],
+                category: r.family,
+                actionLevel: '모델 확인 후 점검',
+                sourceRange: '개별 점검코드'
+            }));
+        }
+
         const ERROR_CODE_DATABASE = expandSamsungErrorGroups(SAMSUNG_ERROR_GROUPS);
+        const LG_ERROR_DATABASE = buildLgErrorDatabase(LG_ERROR_ROWS);
+        const CARRIER_ERROR_DATABASE = buildCarrierErrorDatabase(CARRIER_ERROR_ROWS);
+        const TRANE_ERROR_DATABASE = buildTraneErrorDatabase(TRANE_ERROR_ROWS);
+        const ALL_ERROR_CODE_DATABASE = [...ERROR_CODE_DATABASE, ...LG_ERROR_DATABASE, ...CARRIER_ERROR_DATABASE, ...TRANE_ERROR_DATABASE];
 
         /**
          * Application State Holder
@@ -1885,7 +2991,7 @@
         /**
          * Render Error Code Cards
          */
-        function renderErrorCodes(filteredList = ERROR_CODE_DATABASE) {
+        function renderErrorCodes(filteredList = ALL_ERROR_CODE_DATABASE) {
             const container = document.getElementById('errorCodeList');
             if (!container) return;
             container.innerHTML = '';
@@ -1912,6 +3018,7 @@
                         <div><span class="text-slate-500">모델/적용범위</span><p class="text-slate-200">${escapeHtml(item.modelScope)}</p></div>
                         <div><span class="text-slate-500">증상</span><p class="text-slate-200">${escapeHtml(item.symptom)}</p></div>
                         <div><span class="text-slate-500">점검대상</span><p class="text-slate-200">${escapeHtml(item.target)}</p></div>
+                        ${item.category ? `<div class="flex flex-wrap gap-1.5"><span class="inline-flex items-center px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] text-slate-400">분류: ${escapeHtml(item.category)}</span><span class="inline-flex items-center px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] text-slate-400">조치 수준: ${escapeHtml(item.actionLevel || '')}</span></div>` : ''}
                         <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
                             <span class="text-emerald-300 font-bold"><i class="fa-solid fa-list-check mr-1"></i>공식 점검절차 요약</span>
                             <p class="mt-1 text-slate-300">${escapeHtml(item.procedure)}</p>
@@ -1922,7 +3029,8 @@
                         <div class="text-[10px] text-slate-500 min-w-0">출처: ${escapeHtml(item.sourceTitle)} · ${escapeHtml(item.sourceDate)}</div>
                         <div class="flex items-center gap-1.5 shrink-0">
                             <span class="text-[10px] font-semibold text-emerald-300">Coollab 내 요약</span>
-                            ${item.sourceUrl ? `<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-700 bg-slate-900 text-[10px] font-semibold text-slate-300 hover:text-white hover:border-slate-500 transition" title="삼성전자서비스 공식 점검 페이지 열기"><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>공식 페이지</a>` : ''}
+                            ${item.sourceUrl ? `<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-700 bg-slate-900 text-[10px] font-semibold text-slate-300 hover:text-white hover:border-slate-500 transition" title="제조사 공식 점검 페이지 열기"><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>공식 페이지</a>` : ''}
+                            
                         </div>
                     </div>
                     <p class="text-[10px] text-slate-500">${escapeHtml(item.officialNote)}</p>
@@ -1939,7 +3047,7 @@
             const normalizeErrorCode = value => String(value || '').toLowerCase().replace(/\s+/g, '').replace(/[-_]/g, '');
             const query = normalizeErrorCode(rawQuery);
 
-            const filtered = ERROR_CODE_DATABASE.filter(item => {
+            const filtered = ALL_ERROR_CODE_DATABASE.filter(item => {
                 const matchBrand = selectedBrand === 'ALL' || item.brand === selectedBrand;
                 const matchFamily = selectedFamily === 'ALL' || item.productFamily === selectedFamily;
                 const codeHaystack = normalizeErrorCode(item.code);
